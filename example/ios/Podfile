@@ -28,7 +28,15 @@ target 'aepsdkexpopluginexample' do
     :privacy_file_aggregation_enabled => podfile_properties['apple.privacyManifestAggregationEnabled'] != 'false',
   )
 
-  post_install do |installer|
+  post_install do |installer| 
+        installer.pods_project.targets.each do |t|
+            if t.name.start_with?("AEP")
+            t.build_configurations.each do |bc|
+                bc.build_settings['OTHER_SWIFT_FLAGS'] = '$(inherited) -no-verify-emitted-module-interface'
+            end
+            end
+        end
+    
     react_native_post_install(
       installer,
       config[:reactNativePath],

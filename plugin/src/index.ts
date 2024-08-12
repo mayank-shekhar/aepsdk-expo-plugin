@@ -1,26 +1,25 @@
-import { NativeModulesProxy, EventEmitter, Subscription } from 'expo-modules-core';
+import { ConfigPlugin, createRunOncePlugin } from "@expo/config-plugins";
 
-// Import the native module. On web, it will be resolved to AepsdkExpoPlugin.web.ts
-// and on native platforms to AepsdkExpoPlugin.ts
-import AepsdkExpoPluginModule from './AepsdkExpoPluginModule';
-import AepsdkExpoPluginView from './AepsdkExpoPluginView';
-import { ChangeEventPayload, AepsdkExpoPluginViewProps } from './AepsdkExpoPlugin.types';
+import { SdkConfigurationProps } from "./types";
+import { withCoreiOSSdk } from "./withCoreiOS";
+import { withCoreAndroidSdk } from "./withCoreAndroid";
 
-// Get the native constant value.
-export const PI = AepsdkExpoPluginModule.PI;
+const withSdkConfiguration: ConfigPlugin<SdkConfigurationProps> = (
+  config,
+  _props,
+) => {
+  // Add the plugin code here.
 
-export function hello(): string {
-  return AepsdkExpoPluginModule.hello();
-}
+  const props = _props || {
+    environmentFileId: "default-file-id",
+    logLevel: 1,
+    extensions: [],
+  };
+  config = withCoreiOSSdk(config, props);
+  config = withCoreAndroidSdk(config, props);
+  return config;
+};
 
-export async function setValueAsync(value: string) {
-  return await AepsdkExpoPluginModule.setValueAsync(value);
-}
+const pkg = require("../package.json");
 
-const emitter = new EventEmitter(AepsdkExpoPluginModule ?? NativeModulesProxy.AepsdkExpoPlugin);
-
-export function addChangeListener(listener: (event: ChangeEventPayload) => void): Subscription {
-  return emitter.addListener<ChangeEventPayload>('onChange', listener);
-}
-
-export { AepsdkExpoPluginView, AepsdkExpoPluginViewProps, ChangeEventPayload };
+export default createRunOncePlugin(withSdkConfiguration, pkg.name, pkg.version);

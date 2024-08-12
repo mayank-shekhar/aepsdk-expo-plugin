@@ -1,11 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import * as AepsdkExpoPlugin from 'aepsdk-expo-plugin';
+// import * as AepsdkExpoPlugin from 'aepsdk-expo-plugin';
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>{AepsdkExpoPlugin.hello()}</Text>
+      {/* <Text>{AepsdkExpoPlugin.hello()}</Text> */}
     </View>
   );
 }
