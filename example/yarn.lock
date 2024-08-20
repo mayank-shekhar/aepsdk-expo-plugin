@@ -7,6 +7,21 @@
   resolved "https://registry.npmjs.org/@0no-co/graphql.web/-/graphql.web-1.0.7.tgz"
   integrity sha512-E3Qku4mTzdrlwVWGPxklDnME5ANrEGetvYw4i2GCRlppWXXE4QD66j7pwb8HelZwS6LnqEChhrSOGCXpbiu6MQ==
 
+"@adobe/react-native-aepcore@^6.0.2":
+  version "6.0.2"
+  resolved "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/@adobe/react-native-aepcore/-/react-native-aepcore-6.0.2.tgz#e4bc3d3fa1d5332d716bea35bbd5bf73b689aaf6"
+  integrity sha512-satSCDhwsmfXIldQv7lAjKypDkkpF7fgNijrfC02bLib2RLf1AkGOR8IRVF1zy1THkGGyW0G1K/7n2SynZFaVg==
+
+"@adobe/react-native-aepedge@^6.0.2":
+  version "6.0.2"
+  resolved "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/@adobe/react-native-aepedge/-/react-native-aepedge-6.0.2.tgz#9b76a0daed05a6c74c46c186b3b01510bd2154c1"
+  integrity sha512-AIcK8AksHvBP9ZM8zvWcFns4SaUI43XSEICUf1FiCqxyj3ZVRax+YszQiBeuJFPvK8crP3VjTvC4c/zWYWL3Fg==
+
+"@adobe/react-native-aepmessaging@^6.0.3":
+  version "6.0.3"
+  resolved "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/@adobe/react-native-aepmessaging/-/react-native-aepmessaging-6.0.3.tgz#cb9ecbad39e102c9e67ba6fcd29ba4e5d219e179"
+  integrity sha512-/ekEwv3unvMPdvyKLjMILEUR5u8hZ/ws6TpzhMA51oar0rsFXg1VQ+7yu+WjjSba4fauesag4LzRL4DrA44/9Q==
+
 "@ampproject/remapping@^2.2.0":
   version "2.3.0"
   resolved "https://registry.npmjs.org/@ampproject/remapping/-/remapping-2.3.0.tgz"

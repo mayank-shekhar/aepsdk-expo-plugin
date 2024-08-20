@@ -9,6 +9,9 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@adobe/react-native-aepcore": "^6.0.2",
+    "@adobe/react-native-aepedge": "^6.0.2",
+    "@adobe/react-native-aepmessaging": "^6.0.3",
     "expo": "~51.0.24",
     "react": "18.2.0",
     "react-native": "0.74.3"

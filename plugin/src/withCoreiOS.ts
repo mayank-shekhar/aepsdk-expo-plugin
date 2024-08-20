@@ -3,8 +3,63 @@ import { ConfigPlugin, withInfoPlist, withPodfile, withXcodeProject } from "@exp
 
 import { SdkConfigurationProps } from "./types";
 
-// const fs = require("fs");
-// const path = require("path");
+const fs = require("fs");
+const path = require("path");
+
+
+// function nonComments(obj) {
+//   var keys = Object.keys(obj),
+//       newObj = {}, i = 0;
+
+//   for (i; i < keys.length; i++) {
+//       if (!COMMENT_KEY.test(keys[i])) {
+//           newObj[keys[i]] = obj[keys[i]];
+//       }
+//   }
+
+//   return newObj;
+// }
+
+// function unquote(str) {
+//   if (str) return str.replace(/^"(.*)"$/, "$1");
+// }
+
+
+// map of aep's react native sdk's and their ios counterparts
+const iosSdkMap: Record<string, string> = {
+  "@adobe/react-native-aepcore": "AEPCore",
+  "@adobe/react-native-userprofile": "AEPUserProfile",
+  "@adobe/react-native-aepedge": "AEPEdge",
+  "@adobe/react-native-aepassurance": "AEPAssurance",
+  "@adobe/react-native-aepedgeidentity": "AEPEdgeIdentity",
+  "@adobe/react-native-aepedgeconsent": "AEPEdgeConsent",
+  "@adobe/react-native-aepedgebridge": "AEPEdgeBridge",
+  "@adobe/react-native-aepmessaging": "AEPMessaging",
+  "@adobe/react-native-aepoptimize": "AEPOptimize",
+  "@adobe/react-native-aepplaces": "AEPPlaces",
+  "@adobe/react-native-aeptarget": "AEPTarget",
+  "@adobe/react-native-aepcampaignclassic": "AEPCampaignClassic",
+};
+
+const iosDependenciesVersionMap: Record<string, string> = {
+  "AEPCore": '">= 5.0.0", "< 6.0.0"',
+  "AEPServices": '">= 5.0.0", "< 6.0.0"',
+  "AEPLifecycle": '">= 5.0.0", "< 6.0.0"',
+  "AEPSignal": '">= 5.0.0", "< 6.0.0"',
+  "AEPIdentity": '">= 5.0.0", "< 6.0.0"',
+  "AEPUserProfile": '">= 5.0.0", "< 6.0.0"',
+  "AEPEdge": '">= 5.0.0", "< 6.0.0"',
+  "AEPAssurance": '">= 5.0.0", "< 6.0.0"',
+  "AEPEdgeIdentity": '">= 5.0.0", "< 6.0.0"',
+  "AEPEdgeConsent": '">= 5.0.0", "< 6.0.0"',
+  "AEPEdgeBridge": '">= 5.0.0", "< 6.0.0"',
+  "AEPMessaging": '">= 5.0.0", "< 6.0.0"',
+  "AEPOptimize": '">= 5.0.0", "< 6.0.0"',
+  "AEPPlaces": '">= 5.0.0", "< 6.0.0"',
+  "AEPTarget": '">= 5.0.0", "< 6.0.0"',
+  "AEPCampaignClassic": '">= 5.0.0", "< 6.0.0"',
+};
+
 
 const withCoreInfoPlist: ConfigPlugin<SdkConfigurationProps> = (
   config,
@@ -54,6 +109,55 @@ const withCorePodfile: ConfigPlugin<SdkConfigurationProps> = (
   props,
 ) => {
   return withPodfile(config, (config) => {
+    const podFile = config.modResults;
+
+    // Read the application dependencies from package.json and add pod dependencies using the podfile API
+    const packageJsonPath = path.resolve(process.cwd(), "package.json");
+    const packageJson = JSON.parse(fs
+      .readFileSync(packageJsonPath, "utf8")
+    );
+
+    const dependencies = packageJson.dependencies;
+    const podDependencies = [];
+    for (const [name] of Object.entries(dependencies)) {
+      if (name.startsWith("@adobe/react-native-aepcore")) {
+        // podDependencies.push(`  pod 'AEPCore', '${iosDependenciesVersionMap[ "AEPCore" ]}'`);
+        // podDependencies.push(`  pod 'AEPLifecycle', '${iosDependenciesVersionMap[ "AEPLifecycle" ]}'`);
+        // podDependencies.push(`  pod 'AEPSignal', '${iosDependenciesVersionMap[ "AEPSignal" ]}'`);
+        // podDependencies.push(`  pod 'AEPServices', '${iosDependenciesVersionMap[ "AEPServices" ]}'`);
+        // podDependencies.push(`  pod 'AEPIdentity', '${iosDependenciesVersionMap[ "AEPIdentity" ]}'`);
+
+
+        podDependencies.push(`  pod 'AEPCore'`);
+        podDependencies.push(`  pod 'AEPLifecycle'`);
+        podDependencies.push(`  pod 'AEPSignal'`);
+        podDependencies.push(`  pod 'AEPServices'`);
+        podDependencies.push(`  pod 'AEPIdentity'`);
+      } else {
+        // check if name is in the iosSdkMap
+        if (iosSdkMap[ name ])
+          podDependencies.push(`  pod '${iosSdkMap[name]}'`);
+      }
+    }
+
+    // Push Core dependencies 'AEPLifecycle', 'AEPSignal', 'AEPServices' after the core in the list
+
+
+    // get target name from podfile contents such as 'target 'app' do'
+    const targetName = podFile.contents.match(/target '(.*?)' do/)?.[1] || "app";
+
+
+    // create dependency string
+    const dependencyString = podDependencies.join("\n");
+
+    // Add the pod dependencies to the podfile contents which is string
+    if (!podFile.contents.includes(dependencyString)) {
+      podFile.contents = podFile.contents.replace(
+        `target '${targetName}' do`,
+        `target '${targetName}' do\n${dependencyString}`,
+      );
+    }
+
     const codeToAdd = `
         installer.pods_project.targets.each do |t|
             if t.name.start_with?("AEP")
@@ -63,7 +167,6 @@ const withCorePodfile: ConfigPlugin<SdkConfigurationProps> = (
             end
         end
     `;
-    const podFile = config.modResults;
 
     if (podFile.contents.includes(codeToAdd)) {
       return config;
@@ -86,22 +189,39 @@ const withCoreXcodeProject: ConfigPlugin<SdkConfigurationProps> = (
     // Get the pbxproj file
     const pbxproj = config.modResults;
 
-    // Get the main target
-    const mainTarget = pbxproj.getFirstTarget().firstTarget;
+    let configurations = pbxproj.pbxXCBuildConfigurationSection(),
+        INHERITED = '"$(inherited)"',
+      buildSettings;
 
-    // Get the main target's build configuration list
-    const buildConfigurations = mainTarget.buildConfigurationList;
+    for (let config in configurations) {
+      console.log("config", config);
+      buildSettings = configurations[ config ].buildSettings;
 
-    // Get the build configurations
-    const configurations = buildConfigurations.buildConfigurations;
+      console.log("buildSettings", buildSettings);
 
-    // Modify the configurations to add --fcxx-modules flag in the Other C Flags
-    configurations.forEach((config: { buildSettings: { OTHER_CP: any[]; }; }) => {
-      config.buildSettings.OTHER_CP = [
-        ...(config.buildSettings.OTHER_CP || []),
-        "-fcxx-modules",
-      ];
-    });
+      if (!buildSettings) {
+        continue;
+
+        // if (!buildSettings['FRAMEWORK_SEARCH_PATHS']
+        //     || buildSettings['FRAMEWORK_SEARCH_PATHS'] === INHERITED) {
+        //     buildSettings['FRAMEWORK_SEARCH_PATHS'] = [INHERITED];
+        // }
+
+        // buildSettings['FRAMEWORK_SEARCH_PATHS'].push(searchPathForFile(file, this));
+      } else {
+
+        // Modify the build settings to add -fcxx-modules flag in the Other C Flags
+        if (!buildSettings['OTHER_CFLAGS']
+            || buildSettings['OTHER_CFLAGS'] === INHERITED) {
+          buildSettings[ 'OTHER_CFLAGS' ] = [ INHERITED ];
+
+          // Add -fcxx-modules flag to the Other C Flags
+          buildSettings[ 'OTHER_CFLAGS' ].push("-fcxx-modules");
+        }
+
+      }
+      console.log("updated buildSettings", buildSettings);
+    }
 
     return config
   });
@@ -114,7 +234,7 @@ export const withCoreiOSSdk: ConfigPlugin<SdkConfigurationProps> = (
 ) => {
   config = withCorePodfile(config, props);
   config = withCoreInfoPlist(config, props);
-  config = withCoreXcodeProject(config, props);
+  // config = withCoreXcodeProject(config, props);
 
   return config;
 };
