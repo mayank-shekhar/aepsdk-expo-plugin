@@ -1,29 +1,8 @@
-import { ConfigPlugin, withInfoPlist, withPodfile, withXcodeProject } from "@expo/config-plugins";
-// import { config } from "process";
-
+import { ConfigPlugin, withInfoPlist, withPodfile, withXcodeProject, withAppDelegate } from "@expo/config-plugins";
 import { SdkConfigurationProps } from "./types";
 
 const fs = require("fs");
 const path = require("path");
-
-
-// function nonComments(obj) {
-//   var keys = Object.keys(obj),
-//       newObj = {}, i = 0;
-
-//   for (i; i < keys.length; i++) {
-//       if (!COMMENT_KEY.test(keys[i])) {
-//           newObj[keys[i]] = obj[keys[i]];
-//       }
-//   }
-
-//   return newObj;
-// }
-
-// function unquote(str) {
-//   if (str) return str.replace(/^"(.*)"$/, "$1");
-// }
-
 
 // map of aep's react native sdk's and their ios counterparts
 const iosSdkMap: Record<string, string> = {
@@ -41,43 +20,25 @@ const iosSdkMap: Record<string, string> = {
   "@adobe/react-native-aepcampaignclassic": "AEPCampaignClassic",
 };
 
-const iosDependenciesVersionMap: Record<string, string> = {
-  "AEPCore": '">= 5.0.0", "< 6.0.0"',
-  "AEPServices": '">= 5.0.0", "< 6.0.0"',
-  "AEPLifecycle": '">= 5.0.0", "< 6.0.0"',
-  "AEPSignal": '">= 5.0.0", "< 6.0.0"',
-  "AEPIdentity": '">= 5.0.0", "< 6.0.0"',
-  "AEPUserProfile": '">= 5.0.0", "< 6.0.0"',
-  "AEPEdge": '">= 5.0.0", "< 6.0.0"',
-  "AEPAssurance": '">= 5.0.0", "< 6.0.0"',
-  "AEPEdgeIdentity": '">= 5.0.0", "< 6.0.0"',
-  "AEPEdgeConsent": '">= 5.0.0", "< 6.0.0"',
-  "AEPEdgeBridge": '">= 5.0.0", "< 6.0.0"',
-  "AEPMessaging": '">= 5.0.0", "< 6.0.0"',
-  "AEPOptimize": '">= 5.0.0", "< 6.0.0"',
-  "AEPPlaces": '">= 5.0.0", "< 6.0.0"',
-  "AEPTarget": '">= 5.0.0", "< 6.0.0"',
-  "AEPCampaignClassic": '">= 5.0.0", "< 6.0.0"',
+const iosSdkClassMap: Record<string, string> = {
+  "@adobe/react-native-aepcore": "MobileCore",
+  "@adobe/react-native-userprofile": "UserProfile",
+  "@adobe/react-native-aepedge": "Edge",
+  "@adobe/react-native-aepassurance": "Assurance",
+  "@adobe/react-native-aepedgeidentity": "EdgeIdentity",
+  "@adobe/react-native-aepedgeconsent": "EdgeConsent",
+  "@adobe/react-native-aepedgebridge": "EdgeBridge",
+  "@adobe/react-native-aepmessaging": "Messaging",
+  "@adobe/react-native-aepoptimize": "Optimize",
+  "@adobe/react-native-aepplaces": "Places",
+  "@adobe/react-native-aeptarget": "Target",
+  "@adobe/react-native-aepcampaignclassic": "CampaignClassic",
 };
-
 
 const withCoreInfoPlist: ConfigPlugin<SdkConfigurationProps> = (
   config,
   { logLevel, environmentFileId, extensions },
 ) => {
-
-  // if (!config.ios) {
-  //   config.ios = {};
-  // }
-
-  // if (!config.ios.infoPlist) {
-  //   config.ios.infoPlist = {};
-  // }
-
-  // config.ios.infoPlist[ "AEP_Environment_File_Id" ] = environmentFileId;
-  // config.ios.infoPlist[ "AEP_Log_Level" ] = logLevel;
-  // config.ios.infoPlist[ "AEP_Extensions" ] = extensions;
-  // return config;
 
   return withInfoPlist(config, (config) => {
     delete config.modResults.AEPSDK;
@@ -110,54 +71,6 @@ const withCorePodfile: ConfigPlugin<SdkConfigurationProps> = (
 ) => {
   return withPodfile(config, (config) => {
     const podFile = config.modResults;
-
-    // Read the application dependencies from package.json and add pod dependencies using the podfile API
-    const packageJsonPath = path.resolve(process.cwd(), "package.json");
-    const packageJson = JSON.parse(fs
-      .readFileSync(packageJsonPath, "utf8")
-    );
-
-    const dependencies = packageJson.dependencies;
-    const podDependencies = [];
-    for (const [name] of Object.entries(dependencies)) {
-      if (name.startsWith("@adobe/react-native-aepcore")) {
-        // podDependencies.push(`  pod 'AEPCore', '${iosDependenciesVersionMap[ "AEPCore" ]}'`);
-        // podDependencies.push(`  pod 'AEPLifecycle', '${iosDependenciesVersionMap[ "AEPLifecycle" ]}'`);
-        // podDependencies.push(`  pod 'AEPSignal', '${iosDependenciesVersionMap[ "AEPSignal" ]}'`);
-        // podDependencies.push(`  pod 'AEPServices', '${iosDependenciesVersionMap[ "AEPServices" ]}'`);
-        // podDependencies.push(`  pod 'AEPIdentity', '${iosDependenciesVersionMap[ "AEPIdentity" ]}'`);
-
-
-        podDependencies.push(`  pod 'AEPCore'`);
-        podDependencies.push(`  pod 'AEPLifecycle'`);
-        podDependencies.push(`  pod 'AEPSignal'`);
-        podDependencies.push(`  pod 'AEPServices'`);
-        podDependencies.push(`  pod 'AEPIdentity'`);
-      } else {
-        // check if name is in the iosSdkMap
-        if (iosSdkMap[ name ])
-          podDependencies.push(`  pod '${iosSdkMap[name]}'`);
-      }
-    }
-
-    // Push Core dependencies 'AEPLifecycle', 'AEPSignal', 'AEPServices' after the core in the list
-
-
-    // get target name from podfile contents such as 'target 'app' do'
-    const targetName = podFile.contents.match(/target '(.*?)' do/)?.[1] || "app";
-
-
-    // create dependency string
-    const dependencyString = podDependencies.join("\n");
-
-    // Add the pod dependencies to the podfile contents which is string
-    if (!podFile.contents.includes(dependencyString)) {
-      podFile.contents = podFile.contents.replace(
-        `target '${targetName}' do`,
-        `target '${targetName}' do\n${dependencyString}`,
-      );
-    }
-
     const codeToAdd = `
         installer.pods_project.targets.each do |t|
             if t.name.start_with?("AEP")
@@ -201,13 +114,6 @@ const withCoreXcodeProject: ConfigPlugin<SdkConfigurationProps> = (
 
       if (!buildSettings) {
         continue;
-
-        // if (!buildSettings['FRAMEWORK_SEARCH_PATHS']
-        //     || buildSettings['FRAMEWORK_SEARCH_PATHS'] === INHERITED) {
-        //     buildSettings['FRAMEWORK_SEARCH_PATHS'] = [INHERITED];
-        // }
-
-        // buildSettings['FRAMEWORK_SEARCH_PATHS'].push(searchPathForFile(file, this));
       } else {
 
         // Modify the build settings to add -fcxx-modules flag in the Other C Flags
@@ -225,8 +131,97 @@ const withCoreXcodeProject: ConfigPlugin<SdkConfigurationProps> = (
 
     return config
   });
-
 };
+
+export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
+  config,
+  props,
+) => {
+  return withAppDelegate(config, (config) => {
+    const { logLevel} = props;
+    let appDelegate = config.modResults.contents;
+
+
+    // set the log level based on props.logLevel
+    let logLevelCode = `MobileCore.setLogLevel(.${props.logLevel});`;
+    if (logLevel == "DEBUG") {
+      logLevelCode = `MobileCore.setLogLevel(.debug)`
+    } else if (logLevel == "ERROR") {
+      logLevelCode = `MobileCore.setLogLevel(.error)`
+    } else if (logLevel == "WARNING") {
+      logLevelCode = `MobileCore.setLogLevel(.warning)`
+    } else if (logLevel == "VERBOSE" || logLevel == "INFO") {
+      logLevelCode = `MobileCore.setLogLevel(.trace)`
+    } else {
+      logLevelCode = `MobileCore.setLogLevel(.error)`
+    }
+
+    // Read the application dependencies from package.json and add pod dependencies using the podfile API
+    const packageJsonPath = path.resolve(process.cwd(), "package.json");
+    const packageJson = JSON.parse(fs
+      .readFileSync(packageJsonPath, "utf8")
+    );
+
+    const dependencies = packageJson.dependencies;
+
+    let extensions = `Identity.self, Lifecycle.self, Signal.self`;
+
+    const importsToAdd = [];
+    for (const [name] of Object.entries(dependencies)) {
+      if (name.startsWith("@adobe/react-native-aepcore")) {
+        importsToAdd.push(`import AEPCore`);
+        importsToAdd.push(`import AEPLifecycle`);
+        importsToAdd.push(`import AEPSignal`);
+        importsToAdd.push(`import AEPServices`);
+        importsToAdd.push(`import AEPIdentity`);
+      } else {
+        // check if name is in the iosSdkMap
+        if (iosSdkMap[ name ]) {
+          importsToAdd.push(`import ${iosSdkMap[ name ]}`);
+          extensions = extensions + `, ${iosSdkClassMap[ name ]}.self`;
+        }
+
+      }
+    }
+
+    // Add AEP SDK import code in app delegate file
+    const importCode = importsToAdd.join("\n");
+
+    // Add the import statements to the app delegate file at the top
+    appDelegate = appDelegate.replace(
+      /#import "AppDelegate.h"/,
+      `#import "AppDelegate.h"\n${importCode}`
+    );
+
+    // Add the SDK initialization code in the didFinishLaunchingWithOptions function
+    const sdkInit = `
+        MobileCore.registerExtensions([${extensions}]) {
+            // Use the extensions in your app
+            MobileCore.registerWith(appId: "${props.environmentFileId}")
+            print("Extensions registered successfully")
+
+            if application.applicationState != .background {
+              // Only start lifecycle if the application is not in the background
+              MobileCore.lifecycleStart(additionalContextData: ["contextDataKey": "contextDataVal"])
+            }
+        }
+    `;
+
+    // Add the SDK Initialization code to the didFinishLaunchingWithOptions function after "self.initialProps = @{};"
+    appDelegate = appDelegate.replace(
+      /self.initialProps = @{};/,
+      `self.initialProps = @{};\n${logLevelCode}\n${sdkInit}`
+    );
+
+    console.log("appDelegate", appDelegate);
+
+    return config
+
+  });
+
+
+
+}
 
 export const withCoreiOSSdk: ConfigPlugin<SdkConfigurationProps> = (
   config,
@@ -234,7 +229,7 @@ export const withCoreiOSSdk: ConfigPlugin<SdkConfigurationProps> = (
 ) => {
   config = withCorePodfile(config, props);
   config = withCoreInfoPlist(config, props);
-  // config = withCoreXcodeProject(config, props);
+  config = withCoreAppDelegate(config, props);
 
   return config;
 };

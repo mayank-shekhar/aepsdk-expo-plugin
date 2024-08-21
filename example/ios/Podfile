@@ -35,13 +35,6 @@ install! 'cocoapods',
 prepare_react_native_project!
 
 target 'aepsdkexpopluginexample' do
-  pod 'AEPCore'
-  pod 'AEPLifecycle'
-  pod 'AEPSignal'
-  pod 'AEPServices'
-  pod 'AEPIdentity'
-  pod 'AEPEdge'
-  pod 'AEPMessaging'
   use_expo_modules!
   config = use_native_modules!
 
