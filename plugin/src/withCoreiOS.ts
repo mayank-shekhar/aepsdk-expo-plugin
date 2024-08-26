@@ -64,13 +64,14 @@ const withCorePodfile: ConfigPlugin<SdkConfigurationProps> = (
   return withPodfile(config, (config) => {
     const podFile = config.modResults;
     const codeToAdd = `
-        installer.pods_project.targets.each do |t|
-            if t.name.start_with?("AEP")
-              t.build_configurations.each do |bc|
-                  bc.build_settings['OTHER_SWIFT_FLAGS'] = '$(inherited) -no-verify-emitted-module-interface'
-              end
+      # Added by Adobe Expo SDK Plugin
+      installer.pods_project.targets.each do |t|
+          if t.name.start_with?("AEP")
+            t.build_configurations.each do |bc|
+                bc.build_settings['OTHER_SWIFT_FLAGS'] = '$(inherited) -no-verify-emitted-module-interface'
             end
-        end
+          end
+      end
     `;
 
     if (podFile.contents.includes(codeToAdd)) {
@@ -104,18 +105,22 @@ const withCoreXcodeProject: ConfigPlugin<SdkConfigurationProps> = (
       if (!buildSettings) {
         continue;
       } else {
+        console.log(
+          'buildSettings', buildSettings
+        )
 
         // Modify the build settings to add -fcxx-modules flag in the Other C Flags
-        if (!buildSettings['OTHER_CFLAGS']
-            || buildSettings['OTHER_CFLAGS'] === INHERITED) {
-          buildSettings[ 'OTHER_CFLAGS' ] = [ INHERITED ];
+        if (!buildSettings['OTHER_CPLUSPLUSFLAGS']
+            || buildSettings['OTHER_CPLUSPLUSFLAGS'] === INHERITED) {
+          buildSettings[ 'OTHER_CPLUSPLUSFLAGS' ] = [ INHERITED ];
 
           // Add -fcxx-modules flag to the Other C Flags
-          buildSettings[ 'OTHER_CFLAGS' ].push("-fcxx-modules");
+          buildSettings[ 'OTHER_CPLUSPLUSFLAGS' ].push("-fcxx-modules");
         }
 
       }
     }
+    config.modResults = pbxproj;
 
     return config
   });
@@ -131,17 +136,17 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
 
 
     // set the log level based on props.logLevel
-    let logLevelCode = `MobileCore.setLogLevel(.${props.logLevel});`;
+    let logLevelCode = `  MobileCore.setLogLevel(.${props.logLevel});`;
     if (logLevel == "DEBUG") {
-      logLevelCode = `MobileCore.setLogLevel(.debug)`
+      logLevelCode = `  MobileCore.setLogLevel(.debug)`
     } else if (logLevel == "ERROR") {
-      logLevelCode = `MobileCore.setLogLevel(.error)`
+      logLevelCode = `  MobileCore.setLogLevel(.error)`
     } else if (logLevel == "WARNING") {
-      logLevelCode = `MobileCore.setLogLevel(.warning)`
+      logLevelCode = `  MobileCore.setLogLevel(.warning)`
     } else if (logLevel == "VERBOSE" || logLevel == "INFO") {
-      logLevelCode = `MobileCore.setLogLevel(.trace)`
+      logLevelCode = `  MobileCore.setLogLevel(.trace)`
     } else {
-      logLevelCode = `MobileCore.setLogLevel(.error)`
+      logLevelCode = `  MobileCore.setLogLevel(.error)`
     }
 
     // Read the application dependencies from package.json and add the imports in AppDelegate.m
@@ -157,15 +162,15 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
     const importsToAdd = [];
     for (const [name] of Object.entries(dependencies)) {
       if (name.startsWith("@adobe/react-native-aepcore")) {
-        importsToAdd.push(`import AEPCore`);
-        importsToAdd.push(`import AEPLifecycle`);
-        importsToAdd.push(`import AEPSignal`);
-        importsToAdd.push(`import AEPServices`);
-        importsToAdd.push(`import AEPIdentity`);
+        importsToAdd.push(`@import AEPCore`);
+        importsToAdd.push(`@import AEPLifecycle`);
+        importsToAdd.push(`@import AEPSignal`);
+        importsToAdd.push(`@import AEPServices`);
+        importsToAdd.push(`@import AEPIdentity`);
       } else {
         // check if name is in the iosSdkMap
         if (iosSdkMap[ name ]) {
-          importsToAdd.push(`import ${iosSdkMap[ name ]}`);
+          importsToAdd.push(`@import ${iosSdkMap[ name ]}`);
           extensions = extensions + `, ${iosSdkClassMap[ name ]}.self`;
         }
       }
@@ -182,21 +187,22 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
     // Add the import statements to the app delegate file at the top
     appDelegate = appDelegate.replace(
       /#import "AppDelegate.h"/,
-      `#import "AppDelegate.h"\n${importCode}`
+      `#import "AppDelegate.h"\n//Added by Adobe Expo SDK Plugin\n${importCode}`
     );
 
     // Add the SDK initialization code in the didFinishLaunchingWithOptions function
     const sdkInit = `
-        MobileCore.registerExtensions([${extensions}]) {
-            // Use the extensions in your app
-            MobileCore.registerWith(appId: "${props.environmentFileId}")
-            print("Extensions registered successfully")
+    // Added by Adobe Expo SDK Plugin
+    MobileCore.registerExtensions([${extensions}]) {
+        // Use the extensions in your app
+        MobileCore.registerWith(appId: "${props.environmentFileId}")
+        print("Extensions registered successfully")
 
-            if application.applicationState != .background {
-              // Only start lifecycle if the application is not in the background
-              MobileCore.lifecycleStart(additionalContextData: ["contextDataKey": "contextDataVal"])
-            }
+        if application.applicationState != .background {
+          // Only start lifecycle if the application is not in the background
+          MobileCore.lifecycleStart(additionalContextData: ["contextDataKey": "contextDataVal"])
         }
+    }
     `;
 
     // Add the SDK Initialization code to the didFinishLaunchingWithOptions function after "self.initialProps = @{};"
@@ -204,6 +210,9 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
       /self.initialProps = @{};/,
       `self.initialProps = @{};\n${logLevelCode}\n${sdkInit}`
     );
+
+    console.log('appDelegate', appDelegate);
+    config.modResults.contents = appDelegate;
 
     return config
 
@@ -218,7 +227,8 @@ export const withCoreiOSSdk: ConfigPlugin<SdkConfigurationProps> = (
   props,
 ) => {
   config = withCorePodfile(config, props);
-  config = withCoreInfoPlist(config, props);
+  config = withCoreXcodeProject(config, props);
+  // config = withCoreInfoPlist(config, props);
   config = withCoreAppDelegate(config, props);
 
   return config;

@@ -27,7 +27,7 @@
     },
     "plugins": [
       [
-        "@adobe/aepsdk-expo-plugin",
+        "../plugin/app.plugin.js",
         {
           "environmentFileId": "example",
           "logLevel": "DEBUG"

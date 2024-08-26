@@ -78,7 +78,6 @@ const withCoreMainApplication: ConfigPlugin<SdkConfigurationProps> = (
         importsToAdd.push("import com.adobe.marketing.mobile.Identity");
       }
     }
-    console.log('importsToAdd', importsToAdd);
 
     // Add the import statements to the mainApplication file at the top
     mainApplication = mainApplication.replace(
@@ -104,7 +103,6 @@ const withCoreMainApplication: ConfigPlugin<SdkConfigurationProps> = (
     );
 
 
-    console.log('mainApplication', mainApplication);
 
     return config;
   });
