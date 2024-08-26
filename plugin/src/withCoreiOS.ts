@@ -7,7 +7,7 @@ const path = require("path");
 // map of aep's react native sdk's and their ios counterparts
 const iosSdkMap: Record<string, string> = {
   "@adobe/react-native-aepcore": "AEPCore",
-  "@adobe/react-native-userprofile": "AEPUserProfile",
+  "@adobe/react-native-aepuserprofile": "AEPUserProfile",
   "@adobe/react-native-aepedge": "AEPEdge",
   "@adobe/react-native-aepassurance": "AEPAssurance",
   "@adobe/react-native-aepedgeidentity": "AEPEdgeIdentity",
@@ -22,7 +22,7 @@ const iosSdkMap: Record<string, string> = {
 
 const iosSdkClassMap: Record<string, string> = {
   "@adobe/react-native-aepcore": "MobileCore",
-  "@adobe/react-native-userprofile": "UserProfile",
+  "@adobe/react-native-aepuserprofile": "UserProfile",
   "@adobe/react-native-aepedge": "Edge",
   "@adobe/react-native-aepassurance": "Assurance",
   "@adobe/react-native-aepedgeidentity": "EdgeIdentity",
@@ -37,9 +37,8 @@ const iosSdkClassMap: Record<string, string> = {
 
 const withCoreInfoPlist: ConfigPlugin<SdkConfigurationProps> = (
   config,
-  { logLevel, environmentFileId, extensions },
+  { logLevel, environmentFileId },
 ) => {
-
   return withInfoPlist(config, (config) => {
     delete config.modResults.AEPSDK;
     if (environmentFileId) {
@@ -52,13 +51,6 @@ const withCoreInfoPlist: ConfigPlugin<SdkConfigurationProps> = (
       config.modResults.AEPSDK = {
         ...config.modResults.AEPSDK,
         logLevel,
-      };
-    }
-
-    if (extensions) {
-      config.modResults.AEPSDK = {
-        ...config.modResults.AEPSDK,
-        extensions,
       };
     }
     return config;
@@ -178,6 +170,11 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
         }
 
       }
+    }
+
+    // check if importToAdd is empty, means RN SDKs are not installed in the project, raise an error
+    if (importsToAdd.length === 0) {
+      throw new Error("No SDKs found in package.json. Please add the SDKs to the project.")
     }
 
     // Add AEP SDK import code in app delegate file
