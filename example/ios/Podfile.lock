@@ -1,12 +1,42 @@
 PODS:
-  - AepsdkExpoPlugin (0.1.0):
-    - ExpoModulesCore
+  - AEPCore (5.2.0):
+    - AEPRulesEngine (< 6.0.0, >= 5.0.0)
+    - AEPServices (< 6.0.0, >= 5.2.0)
+  - AEPEdge (5.0.2):
+    - AEPCore (< 6.0.0, >= 5.1.0)
+    - AEPEdgeIdentity (< 6.0.0, >= 5.0.0)
+  - AEPEdgeIdentity (5.0.0):
+    - AEPCore (< 6.0.0, >= 5.0.0)
+  - AEPIdentity (5.2.0):
+    - AEPCore (< 6.0.0, >= 5.2.0)
+  - AEPLifecycle (5.2.0):
+    - AEPCore (< 6.0.0, >= 5.2.0)
+  - AEPMessaging (5.1.1):
+    - AEPCore (< 6.0.0, >= 5.2.0)
+    - AEPEdge (< 6.0.0, >= 5.0.2)
+    - AEPEdgeIdentity (< 6.0.0, >= 5.0.0)
+    - AEPServices (< 6.0.0, >= 5.2.0)
+  - AEPRulesEngine (5.0.0)
+  - AEPServices (5.2.0)
+  - AEPSignal (5.2.0):
+    - AEPCore (< 6.0.0, >= 5.2.0)
   - boost (1.83.0)
   - DoubleConversion (1.1.6)
   - EXConstants (16.0.2):
     - ExpoModulesCore
   - Expo (51.0.24):
     - ExpoModulesCore
+  - ExpoAdapterAEP (0.1.0):
+    - AEPCore (< 6.0.0, >= 5.0.0)
+    - AEPEdge (< 6.0.0, >= 5.0.0)
+    - AEPEdgeIdentity (< 6.0.0, >= 5.0.0)
+    - AEPIdentity (< 6.0.0, >= 5.0.0)
+    - AEPLifecycle (< 6.0.0, >= 5.0.0)
+    - AEPMessaging (< 6.0.0, >= 5.0.0)
+    - AEPServices (< 6.0.0, >= 5.0.0)
+    - AEPSignal (< 6.0.0, >= 5.0.0)
+    - ExpoModulesCore
+    - React
   - ExpoAsset (10.0.10):
     - ExpoModulesCore
   - ExpoFileSystem (17.0.1):
@@ -60,6 +90,37 @@ PODS:
     - DoubleConversion
     - fmt (= 9.1.0)
     - glog
+  - RCTAEPCore (6.0.2):
+    - AEPCore (< 6.0.0, >= 5.0.0)
+    - AEPIdentity (< 6.0.0, >= 5.0.0)
+    - AEPLifecycle (< 6.0.0, >= 5.0.0)
+    - AEPSignal (< 6.0.0, >= 5.0.0)
+    - React
+  - RCTAEPEdge (6.0.2):
+    - AEPEdge (< 6.0.0, >= 5.0.0)
+    - React
+  - RCTAEPMessaging (6.0.3):
+    - AEPMessaging (< 6.0.0, >= 5.0.0)
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Codegen
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RCTDeprecation (0.74.3)
   - RCTRequired (0.74.3)
   - RCTTypeSafety (0.74.3):
@@ -1205,11 +1266,11 @@ PODS:
   - Yoga (0.0.0)
 
 DEPENDENCIES:
-  - AepsdkExpoPlugin (from `../../ios`)
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - EXConstants (from `../node_modules/expo-constants/ios`)
   - Expo (from `../node_modules/expo`)
+  - ExpoAdapterAEP (from `../../plugin/ios`)
   - ExpoAsset (from `../node_modules/expo-asset/ios`)
   - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
   - ExpoFont (from `../node_modules/expo-font/ios`)
@@ -1221,6 +1282,9 @@ DEPENDENCIES:
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCT-Folly/Fabric (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
+  - "RCTAEPCore (from `../node_modules/@adobe/react-native-aepcore`)"
+  - "RCTAEPEdge (from `../node_modules/@adobe/react-native-aepedge`)"
+  - "RCTAEPMessaging (from `../node_modules/@adobe/react-native-aepmessaging`)"
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
   - RCTRequired (from `../node_modules/react-native/Libraries/Required`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -1272,11 +1336,18 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - AEPCore
+    - AEPEdge
+    - AEPEdgeIdentity
+    - AEPIdentity
+    - AEPLifecycle
+    - AEPMessaging
+    - AEPRulesEngine
+    - AEPServices
+    - AEPSignal
     - SocketRocket
 
 EXTERNAL SOURCES:
-  AepsdkExpoPlugin:
-    :path: "../../ios"
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
   DoubleConversion:
@@ -1285,6 +1356,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-constants/ios"
   Expo:
     :path: "../node_modules/expo"
+  ExpoAdapterAEP:
+    :path: "../../plugin/ios"
   ExpoAsset:
     :path: "../node_modules/expo-asset/ios"
   ExpoFileSystem:
@@ -1306,6 +1379,12 @@ EXTERNAL SOURCES:
     :tag: hermes-2024-06-28-RNv0.74.3-7bda0c267e76d11b68a585f84cfdd65000babf85
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
+  RCTAEPCore:
+    :path: "../node_modules/@adobe/react-native-aepcore"
+  RCTAEPEdge:
+    :path: "../node_modules/@adobe/react-native-aepedge"
+  RCTAEPMessaging:
+    :path: "../node_modules/@adobe/react-native-aepmessaging"
   RCTDeprecation:
     :path: "../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation"
   RCTRequired:
@@ -1402,11 +1481,20 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  AepsdkExpoPlugin: 5b69733d9ca340a70bea60e378d45a31b692d61e
+  AEPCore: db53082c207c28166ed6aa9ae6262a55e95c78aa
+  AEPEdge: edf73ae8900016940cd7fcb29a89a576a1c6b0ae
+  AEPEdgeIdentity: 3161ff33434586962946912d6b8e9e8fca1c4d23
+  AEPIdentity: 3c597ef3d734d726f6a48ae10cdecb36fbeb28ca
+  AEPLifecycle: 0e2ddb26751320b88ea7471e63751f38c4ccdc10
+  AEPMessaging: efbbc2d967d3665c5f334ec7f9684fb0924c3b3c
+  AEPRulesEngine: fe5800653a4bee07b1e41e61b4d5551f0dba557b
+  AEPServices: d959143d13fde7e8464c19527df6baacdef765ce
+  AEPSignal: 3b9052359e25bdea9fa677955ed20db7702e17d5
   boost: d3f49c53809116a5d38da093a8aa78bf551aed09
   DoubleConversion: 76ab83afb40bddeeee456813d9c04f67f78771b5
   EXConstants: 409690fbfd5afea964e5e9d6c4eb2c2b59222c59
   Expo: 798848eae1daf13363d69790986146b08d0cf92f
+  ExpoAdapterAEP: 6b6b03e00a7e50157a4ded90d22186551b7e2210
   ExpoAsset: 323700f291684f110fb55f0d4022a3362ea9f875
   ExpoFileSystem: 80bfe850b1f9922c16905822ecbf97acd711dc51
   ExpoFont: e7f2275c10ca8573c991e007329ad6bf98086485
@@ -1417,6 +1505,9 @@ SPEC CHECKSUMS:
   glog: fdfdfe5479092de0c4bdbebedd9056951f092c4f
   hermes-engine: 1f547997900dd0752dc0cc0ae6dd16173c49e09b
   RCT-Folly: 02617c592a293bd6d418e0a88ff4ee1f88329b47
+  RCTAEPCore: 6153158b90917c9354e9b5fe838b3c4dfd7f3bda
+  RCTAEPEdge: e3ce0e7f80516f51f95920384ac2fa9a9432935d
+  RCTAEPMessaging: 8d9b51f7a498dd0217c76bd21bd109dc40aec38b
   RCTDeprecation: 4c7eeb42be0b2e95195563c49be08d0b839d22b4
   RCTRequired: d530a0f489699c8500e944fde963102c42dcd0c2
   RCTTypeSafety: b20878506b094fa3d9007d7b9e4be0faa3562499
@@ -1466,6 +1557,6 @@ SPEC CHECKSUMS:
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
   Yoga: 04f1db30bb810187397fa4c37dd1868a27af229c
 
-PODFILE CHECKSUM: caf1e3e6f24fc65aba7dd59d724367c414362d41
+PODFILE CHECKSUM: defd54840c943838a56b5ce965625e068281d6b0
 
 COCOAPODS: 1.15.2

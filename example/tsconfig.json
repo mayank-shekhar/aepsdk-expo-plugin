@@ -3,8 +3,8 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "aepsdk-expo-plugin": ["../src/index"],
-      "aepsdk-expo-plugin/*": ["../src/*"]
+      "aepsdk-expo-plugin": ["../plugin/src/index"],
+      "aepsdk-expo-plugin/*": ["../plugin/src/*"]
     }
   }
 }

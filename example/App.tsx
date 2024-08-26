@@ -1,11 +1,19 @@
 import { StyleSheet, Text, View } from 'react-native';
-
-import * as AepsdkExpoPlugin from 'aepsdk-expo-plugin';
+import { MobileCore } from '@adobe/react-native-aepcore';
+import { useEffect, useState } from 'react';
+// import * as AepsdkExpoPlugin from 'aepsdk-expo-plugin';
 
 export default function App() {
+  const [version, setVersion] = useState('');
+  useEffect(() => {
+    MobileCore.extensionVersion().then((version) => {
+      console.log('Extension version: ', version);
+      setVersion(version);
+    });
+  }, []);
   return (
     <View style={styles.container}>
-      <Text>{AepsdkExpoPlugin.hello()}</Text>
+      <Text>{version}</Text>
     </View>
   );
 }
