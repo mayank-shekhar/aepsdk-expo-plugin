@@ -168,7 +168,6 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
           importsToAdd.push(`import ${iosSdkMap[ name ]}`);
           extensions = extensions + `, ${iosSdkClassMap[ name ]}.self`;
         }
-
       }
     }
 

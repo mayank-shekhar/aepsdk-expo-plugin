@@ -8,7 +8,7 @@ const path = require("path");
 // map of aep's react native sdk's and their android counterparts
 const androidSdkExtensionMap: Record<string, string> = {
   '@adobe/react-native-aepcore': 'Core',
-  '@adobe/react-native-userprofile': 'UserProfile',
+  '@adobe/react-native-aepuserprofile': 'UserProfile',
   '@adobe/react-native-aepedge': 'Edge',
   '@adobe/react-native-aepassurance': 'Assurance',
   '@adobe/react-native-aepedgeidentity': 'EdgeIdentity',
@@ -23,7 +23,7 @@ const androidSdkExtensionMap: Record<string, string> = {
 
 const androidSdkImportMap: Record<string, string> = {
   '@adobe/react-native-aepcore': 'import com.adobe.marketing.mobile.MobileCore',
-  '@adobe/react-native-userprofile': 'import com.adobe.marketing.mobile.UserProfile',
+  '@adobe/react-native-aepuserprofile': 'import com.adobe.marketing.mobile.UserProfile',
   '@adobe/react-native-aepedge': 'import com.adobe.marketing.mobile.Edge',
   '@adobe/react-native-aepassurance': 'import com.adobe.marketing.mobile.Assurance',
   '@adobe/react-native-aepedgeidentity': 'import com.adobe.marketing.mobile.EdgeIdentity',
