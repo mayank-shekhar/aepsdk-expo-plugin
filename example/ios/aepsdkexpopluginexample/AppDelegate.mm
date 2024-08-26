@@ -3,10 +3,10 @@
 @import AEPCore
 @import AEPLifecycle
 @import AEPSignal
-@import AEPServices
 @import AEPIdentity
 @import AEPEdge
 @import AEPMessaging
+@import AEPServices
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
@@ -22,17 +22,17 @@
   self.initialProps = @{};
   MobileCore.setLogLevel(.debug)
 
-    // Added by Adobe Expo SDK Plugin
-    MobileCore.registerExtensions([Identity.self, Lifecycle.self, Signal.self, Edge.self, Messaging.self]) {
-        // Use the extensions in your app
-        MobileCore.registerWith(appId: "example")
-        print("Extensions registered successfully")
+  // Added by Adobe Expo SDK Plugin
+  MobileCore.registerExtensions([Identity.self, Lifecycle.self, Signal.self, Edge.self, Messaging.self]) {
+    // Use the extensions in your app
+    MobileCore.registerWith(appId: "example")
+    print("Extensions registered successfully")
 
-        if application.applicationState != .background {
-          // Only start lifecycle if the application is not in the background
-          MobileCore.lifecycleStart(additionalContextData: ["contextDataKey": "contextDataVal"])
-        }
+    if application.applicationState != .background {
+      // Only start lifecycle if the application is not in the background
+      MobileCore.lifecycleStart(additionalContextData: ["contextDataKey": "contextDataVal"])
     }
+  }
     
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];

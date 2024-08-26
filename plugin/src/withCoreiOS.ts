@@ -159,14 +159,10 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
 
     let extensions = `Identity.self, Lifecycle.self, Signal.self`;
 
-    const importsToAdd = [];
+    const importsToAdd = ['@import AEPCore', '@import AEPLifecycle', '@import AEPSignal', '@import AEPIdentity'];
     for (const [name] of Object.entries(dependencies)) {
       if (name.startsWith("@adobe/react-native-aepcore")) {
-        importsToAdd.push(`@import AEPCore`);
-        importsToAdd.push(`@import AEPLifecycle`);
-        importsToAdd.push(`@import AEPSignal`);
-        importsToAdd.push(`@import AEPServices`);
-        importsToAdd.push(`@import AEPIdentity`);
+        continue;
       } else {
         // check if name is in the iosSdkMap
         if (iosSdkMap[ name ]) {
@@ -179,37 +175,57 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
     // check if importToAdd is empty, means RN SDKs are not installed in the project, raise an error
     if (importsToAdd.length === 0) {
       throw new Error("No SDKs found in package.json. Please add the SDKs to the project.")
+    } else {
+      importsToAdd.push('@import AEPServices')
     }
 
     // Add AEP SDK import code in app delegate file
     const importCode = importsToAdd.join("\n");
 
-    // Add the import statements to the app delegate file at the top
-    appDelegate = appDelegate.replace(
-      /#import "AppDelegate.h"/,
-      `#import "AppDelegate.h"\n//Added by Adobe Expo SDK Plugin\n${importCode}`
-    );
+    // check if import code is already added then remove it and add updated code
+    if (appDelegate.includes("@import AEPCore")) {
+      appDelegate = appDelegate.replace(
+        /@import AEPCore[\s\S]*@import AEPServices/,
+        importCode
+      );
+    } else {
+      // Add the import statements to the app delegate file at the top
+      appDelegate = appDelegate.replace(
+        /#import "AppDelegate.h"/,
+        `#import "AppDelegate.h"\n//Added by Adobe Expo SDK Plugin\n${importCode}`
+      );
+    }
 
     // Add the SDK initialization code in the didFinishLaunchingWithOptions function
     const sdkInit = `
-    // Added by Adobe Expo SDK Plugin
-    MobileCore.registerExtensions([${extensions}]) {
-        // Use the extensions in your app
-        MobileCore.registerWith(appId: "${props.environmentFileId}")
-        print("Extensions registered successfully")
+  // Added by Adobe Expo SDK Plugin
+  MobileCore.registerExtensions([${extensions}]) {
+    // Use the extensions in your app
+    MobileCore.registerWith(appId: "${props.environmentFileId}")
+    print("Extensions registered successfully")
 
-        if application.applicationState != .background {
-          // Only start lifecycle if the application is not in the background
-          MobileCore.lifecycleStart(additionalContextData: ["contextDataKey": "contextDataVal"])
-        }
+    if application.applicationState != .background {
+      // Only start lifecycle if the application is not in the background
+      MobileCore.lifecycleStart(additionalContextData: ["contextDataKey": "contextDataVal"])
     }
+  }
     `;
 
     // Add the SDK Initialization code to the didFinishLaunchingWithOptions function after "self.initialProps = @{};"
-    appDelegate = appDelegate.replace(
-      /self.initialProps = @{};/,
-      `self.initialProps = @{};\n${logLevelCode}\n${sdkInit}`
-    );
+    // check if code is already added
+    if (appDelegate.includes(sdkInit)) {
+      // remove the existing code and add the updated code
+      appDelegate = appDelegate.replace(
+        /.*MobileCore.registerExtensions\(\[.*\]\) {/,
+        sdkInit
+      );
+    } else {
+      // add the code to the didFinishLaunchingWithOptions function
+      appDelegate = appDelegate.replace(
+        /self.initialProps = @{};/,
+        `self.initialProps = @{};\n${logLevelCode}\n${sdkInit}`
+      );
+    }
 
     console.log('appDelegate', appDelegate);
     config.modResults.contents = appDelegate;
