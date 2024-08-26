@@ -1,3 +1,5 @@
+[&#8592; Back to the main page](../README.md)
+
 # Getting Started
 
 This guide walks through how to get up and running with the AEP Expo SDK with only a few lines of code.
