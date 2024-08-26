@@ -105,10 +105,6 @@ const withCoreXcodeProject: ConfigPlugin<SdkConfigurationProps> = (
       if (!buildSettings) {
         continue;
       } else {
-        console.log(
-          'buildSettings', buildSettings
-        )
-
         // Modify the build settings to add -fcxx-modules flag in the Other C Flags
         if (!buildSettings['OTHER_CPLUSPLUSFLAGS']
             || buildSettings['OTHER_CPLUSPLUSFLAGS'] === INHERITED) {
@@ -147,6 +143,20 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
       logLevelCode = `  MobileCore.setLogLevel(.trace)`
     } else {
       logLevelCode = `  MobileCore.setLogLevel(.error)`
+    }
+
+    // check if the log level code is already added then remove it and add updated code
+    if (appDelegate.includes("MobileCore.setLogLevel")) {
+      appDelegate = appDelegate.replace(
+        /MobileCore.setLogLevel\(.+\);/,
+        logLevelCode
+      );
+    } else {
+      // Add the log level code to the didFinishLaunchingWithOptions function
+      appDelegate = appDelegate.replace(
+        /self.initialProps = @{};/,
+        `self.initialProps = @{};\n${logLevelCode}\n`
+      );
     }
 
     // Read the application dependencies from package.json and add the imports in AppDelegate.m
@@ -192,14 +202,14 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
       // Add the import statements to the app delegate file at the top
       appDelegate = appDelegate.replace(
         /#import "AppDelegate.h"/,
-        `#import "AppDelegate.h"\n//Added by Adobe Expo SDK Plugin\n${importCode}`
+        `#import "AppDelegate.h"\n// Added by Adobe Expo SDK Plugin\n${importCode}`
       );
     }
 
     // Add the SDK initialization code in the didFinishLaunchingWithOptions function
     const sdkInit = `
-  // Added by Adobe Expo SDK Plugin
   MobileCore.registerExtensions([${extensions}]) {
+    // Added by Adobe Expo Config Module
     // Use the extensions in your app
     MobileCore.registerWith(appId: "${props.environmentFileId}")
     print("Extensions registered successfully")
@@ -211,23 +221,35 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
   }
     `;
 
-    // Add the SDK Initialization code to the didFinishLaunchingWithOptions function after "self.initialProps = @{};"
-    // check if code is already added
-    if (appDelegate.includes(sdkInit)) {
-      // remove the existing code and add the updated code
+
+
+
+    if (appDelegate.includes("MobileCore.registerExtensions")) {
+      // update the extension part in MobileCore.registerExtensions
       appDelegate = appDelegate.replace(
-        /.*MobileCore.registerExtensions\(\[.*\]\) {/,
-        sdkInit
+        /MobileCore\.registerExtensions\(\[.*?\]\)/,
+        `MobileCore.registerExtensions([${extensions}])`
       );
+
+
+
+
+
+      // console.log('Code is already present', sdkInit);
+      // console.log('old code', appDelegate);
+      // // remove the existing code and add the updated code
+      // appDelegate = appDelegate.replace(
+      //   /MobileCore.registerExtensions\([\s\S]*?\)\s*\{[\s\S]*?MobileCore.setLogLevel\(\.[\s\S]*?\);/,
+      //   `${sdkInit}\n${logLevelCode}`
+      // );
+      // console.log('Updated code', appDelegate);
     } else {
       // add the code to the didFinishLaunchingWithOptions function
       appDelegate = appDelegate.replace(
         /self.initialProps = @{};/,
-        `self.initialProps = @{};\n${logLevelCode}\n${sdkInit}`
+        `self.initialProps = @{};\n${sdkInit}`
       );
     }
-
-    console.log('appDelegate', appDelegate);
     config.modResults.contents = appDelegate;
 
     return config

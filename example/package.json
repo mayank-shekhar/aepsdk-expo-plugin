@@ -9,10 +9,15 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@adobe/react-native-aepassurance": "^6.0.2",
     "@adobe/react-native-aepcore": "^6.0.2",
     "@adobe/react-native-aepedge": "^6.0.2",
+    "@adobe/react-native-aepedgebridge": "^6.0.2",
     "@adobe/react-native-aepedgeconsent": "^6.0.2",
+    "@adobe/react-native-aepedgeidentity": "^6.0.2",
     "@adobe/react-native-aepmessaging": "^6.0.3",
+    "@adobe/react-native-aepoptimize": "^6.0.3",
+    "@adobe/react-native-aepplaces": "^6.0.2",
     "@adobe/react-native-aepuserprofile": "^6.0.2",
     "expo": "~51.0.24",
     "react": "18.2.0",

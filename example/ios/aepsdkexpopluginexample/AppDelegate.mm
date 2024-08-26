@@ -1,12 +1,17 @@
 #import "AppDelegate.h"
-//Added by Adobe Expo SDK Plugin
+// Added by Adobe Expo SDK Plugin
 @import AEPCore
 @import AEPLifecycle
 @import AEPSignal
 @import AEPIdentity
+@import AEPAssurance
 @import AEPEdge
+@import AEPEdgeBridge
 @import AEPEdgeConsent
+@import AEPEdgeIdentity
 @import AEPMessaging
+@import AEPOptimize
+@import AEPPlaces
 @import AEPUserProfile
 @import AEPServices
 
@@ -22,6 +27,21 @@
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
+
+  MobileCore.registerExtensions([Identity.self, Lifecycle.self, Signal.self, Assurance.self, Edge.self, EdgeBridge.self, EdgeConsent.self, EdgeIdentity.self, Messaging.self, Optimize.self, Places.self, UserProfile.self]) {
+    // Added by Adobe Expo Config Module
+    // Use the extensions in your app
+    MobileCore.registerWith(appId: "example")
+    print("Extensions registered successfully")
+
+    if application.applicationState != .background {
+      // Only start lifecycle if the application is not in the background
+      MobileCore.lifecycleStart(additionalContextData: ["contextDataKey": "contextDataVal"])
+    }
+  }
+
+  MobileCore.setLogLevel(.debug)
+
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
