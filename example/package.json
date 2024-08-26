@@ -11,6 +11,7 @@
   "dependencies": {
     "@adobe/react-native-aepcore": "^6.0.2",
     "@adobe/react-native-aepedge": "^6.0.2",
+    "@adobe/react-native-aepedgeconsent": "^6.0.2",
     "@adobe/react-native-aepmessaging": "^6.0.3",
     "@adobe/react-native-aepuserprofile": "^6.0.2",
     "expo": "~51.0.24",

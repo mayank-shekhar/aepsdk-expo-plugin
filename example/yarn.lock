@@ -17,10 +17,20 @@
   resolved "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/@adobe/react-native-aepedge/-/react-native-aepedge-6.0.2.tgz#9b76a0daed05a6c74c46c186b3b01510bd2154c1"
   integrity sha512-AIcK8AksHvBP9ZM8zvWcFns4SaUI43XSEICUf1FiCqxyj3ZVRax+YszQiBeuJFPvK8crP3VjTvC4c/zWYWL3Fg==
 
+"@adobe/react-native-aepedgeconsent@^6.0.2":
+  version "6.0.2"
+  resolved "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/@adobe/react-native-aepedgeconsent/-/react-native-aepedgeconsent-6.0.2.tgz#644d98f5baf2fdddd8ea65fdb60465cb9a7af8b1"
+  integrity sha512-CMaGQBocNjUGGhgcnaF/v6LhKDgU9gAb+dqvmW8zqboznGI7p5PUI0saho9eGOjnL6z5mHZeeu2jeZz4B5z+6w==
+
 "@adobe/react-native-aepmessaging@^6.0.3":
   version "6.0.3"
   resolved "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/@adobe/react-native-aepmessaging/-/react-native-aepmessaging-6.0.3.tgz#cb9ecbad39e102c9e67ba6fcd29ba4e5d219e179"
   integrity sha512-/ekEwv3unvMPdvyKLjMILEUR5u8hZ/ws6TpzhMA51oar0rsFXg1VQ+7yu+WjjSba4fauesag4LzRL4DrA44/9Q==
+
+"@adobe/react-native-aepuserprofile@^6.0.2":
+  version "6.0.2"
+  resolved "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/@adobe/react-native-aepuserprofile/-/react-native-aepuserprofile-6.0.2.tgz#daa143c137bdfff7fb8537f580d116e5fa4265a7"
+  integrity sha512-5btukvFy8MMr9Y9WekfZ/MJH+2jm16X/KbfW+08pKcTxQpvkJFpqcRYjgTDgTqpBAGTJWBRyqsYfG4OQEpTZZw==
 
 "@ampproject/remapping@^2.2.0":
   version "2.3.0"
