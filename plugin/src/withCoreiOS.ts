@@ -107,10 +107,7 @@ const withCoreXcodeProject: ConfigPlugin<SdkConfigurationProps> = (
       buildSettings;
 
     for (let config in configurations) {
-      console.log("config", config);
       buildSettings = configurations[ config ].buildSettings;
-
-      console.log("buildSettings", buildSettings);
 
       if (!buildSettings) {
         continue;
@@ -126,7 +123,6 @@ const withCoreXcodeProject: ConfigPlugin<SdkConfigurationProps> = (
         }
 
       }
-      console.log("updated buildSettings", buildSettings);
     }
 
     return config
@@ -156,7 +152,7 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
       logLevelCode = `MobileCore.setLogLevel(.error)`
     }
 
-    // Read the application dependencies from package.json and add pod dependencies using the podfile API
+    // Read the application dependencies from package.json and add the imports in AppDelegate.m
     const packageJsonPath = path.resolve(process.cwd(), "package.json");
     const packageJson = JSON.parse(fs
       .readFileSync(packageJsonPath, "utf8")
@@ -212,8 +208,6 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
       /self.initialProps = @{};/,
       `self.initialProps = @{};\n${logLevelCode}\n${sdkInit}`
     );
-
-    console.log("appDelegate", appDelegate);
 
     return config
 
