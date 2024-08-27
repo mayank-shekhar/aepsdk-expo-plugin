@@ -1,19 +1,19 @@
 #import "AppDelegate.h"
 // Added by Adobe Expo SDK Plugin
-@import AEPCore
-@import AEPLifecycle
-@import AEPSignal
-@import AEPIdentity
-@import AEPAssurance
-@import AEPEdge
-@import AEPEdgeBridge
-@import AEPEdgeConsent
-@import AEPEdgeIdentity
-@import AEPMessaging
-@import AEPOptimize
-@import AEPPlaces
-@import AEPUserProfile
-@import AEPServices
+@import AEPCore;
+@import AEPLifecycle;
+@import AEPSignal;
+@import AEPIdentity;
+@import AEPAssurance;
+@import AEPEdge;
+@import AEPEdgeBridge;
+@import AEPEdgeConsent;
+@import AEPEdgeIdentity;
+@import AEPMessaging;
+@import AEPOptimize;
+@import AEPPlaces;
+@import AEPUserProfile;
+@import AEPServices;
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
@@ -28,19 +28,20 @@
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
 
-  MobileCore.registerExtensions([Identity.self, Lifecycle.self, Signal.self, Assurance.self, Edge.self, EdgeBridge.self, EdgeConsent.self, EdgeIdentity.self, Messaging.self, Optimize.self, Places.self, UserProfile.self]) {
-    // Added by Adobe Expo Config Module
+
+  [AEPMobileCore configureWithAppId:@"example"];
+  const UIApplicationState appState = application.applicationState;
+  [AEPMobileCore registerExtensions:@[AEPMobileIdentity.class, AEPMobileLifecycle.class, AEPMobileSignal.class, AEPMobileAssurance.class, AEPMobileEdge.class, AEPMobileEdgeBridge.class, AEPMobileEdgeConsent.class, AEPMobileEdgeIdentity.class, AEPMobileMessaging.class, AEPMobileOptimize.class, AEPMobilePlaces.class, AEPMobileUserProfile.class] completion:^{
     // Use the extensions in your app
-    MobileCore.registerWith(appId: "example")
-    print("Extensions registered successfully")
-
-    if application.applicationState != .background {
-      // Only start lifecycle if the application is not in the background
-      MobileCore.lifecycleStart(additionalContextData: ["contextDataKey": "contextDataVal"])
+    NSLog(@"Extensions registered successfully");
+    [AEPMobileCore lifecycleStart:@{@"contextDataKey": @"contextDataVal"}];
+    if (appState != UIApplicationStateBackground) {
+      [AEPMobileCore lifecycleStart:nil];
     }
-  }
+  }];
 
-  MobileCore.setLogLevel(.debug)
+
+  [AEPMobileCore setLogLevel:AEPLogLevelDebug];
 
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];

@@ -21,18 +21,18 @@ const iosSdkMap: Record<string, string> = {
 };
 
 const iosSdkClassMap: Record<string, string> = {
-  "@adobe/react-native-aepcore": "MobileCore",
-  "@adobe/react-native-aepuserprofile": "UserProfile",
-  "@adobe/react-native-aepedge": "Edge",
-  "@adobe/react-native-aepassurance": "Assurance",
-  "@adobe/react-native-aepedgeidentity": "EdgeIdentity",
-  "@adobe/react-native-aepedgeconsent": "EdgeConsent",
-  "@adobe/react-native-aepedgebridge": "EdgeBridge",
-  "@adobe/react-native-aepmessaging": "Messaging",
-  "@adobe/react-native-aepoptimize": "Optimize",
-  "@adobe/react-native-aepplaces": "Places",
-  "@adobe/react-native-aeptarget": "Target",
-  "@adobe/react-native-aepcampaignclassic": "CampaignClassic",
+  "@adobe/react-native-aepcore": "AEPMobileCore",
+  "@adobe/react-native-aepuserprofile": "AEPMobileUserProfile",
+  "@adobe/react-native-aepedge": "AEPMobileEdge",
+  "@adobe/react-native-aepassurance": "AEPMobileAssurance",
+  "@adobe/react-native-aepedgeidentity": "AEPMobileEdgeIdentity",
+  "@adobe/react-native-aepedgeconsent": "AEPMobileEdgeConsent",
+  "@adobe/react-native-aepedgebridge": "AEPMobileEdgeBridge",
+  "@adobe/react-native-aepmessaging": "AEPMobileMessaging",
+  "@adobe/react-native-aepoptimize": "AEPMobileOptimize",
+  "@adobe/react-native-aepplaces": "AEPMobilePlaces",
+  "@adobe/react-native-aeptarget": "AEPMobileTarget",
+  "@adobe/react-native-aepcampaignclassic": "AEPMobileCampaignClassic",
 };
 
 const withCoreInfoPlist: ConfigPlugin<SdkConfigurationProps> = (
@@ -110,10 +110,10 @@ const withCoreXcodeProject: ConfigPlugin<SdkConfigurationProps> = (
             || buildSettings['OTHER_CPLUSPLUSFLAGS'] === INHERITED) {
           buildSettings[ 'OTHER_CPLUSPLUSFLAGS' ] = [ INHERITED ];
 
-          // Add -fcxx-modules flag to the Other C Flags
+          // Add -fcxx-modules flag to the Other C++ Flags
           buildSettings[ 'OTHER_CPLUSPLUSFLAGS' ].push("-fcxx-modules");
+          buildSettings['OTHER_CPLUSPLUSFLAGS'].push("-Wno-module-import-in-extern-c");
         }
-
       }
     }
     config.modResults = pbxproj;
@@ -132,23 +132,23 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
 
 
     // set the log level based on props.logLevel
-    let logLevelCode = `  MobileCore.setLogLevel(.${props.logLevel});`;
+    let logLevelCode = `  `;
     if (logLevel == "DEBUG") {
-      logLevelCode = `  MobileCore.setLogLevel(.debug)`
+      logLevelCode = `[AEPMobileCore setLogLevel:AEPLogLevelDebug];`
     } else if (logLevel == "ERROR") {
-      logLevelCode = `  MobileCore.setLogLevel(.error)`
+      logLevelCode = `[AEPMobileCore setLogLevel:AEPLogLevelError];`
     } else if (logLevel == "WARNING") {
-      logLevelCode = `  MobileCore.setLogLevel(.warning)`
+      logLevelCode = `[AEPMobileCore setLogLevel:AEPLogLevelWarning];`
     } else if (logLevel == "VERBOSE" || logLevel == "INFO") {
-      logLevelCode = `  MobileCore.setLogLevel(.trace)`
+      logLevelCode = `[AEPMobileCore setLogLevel:AEPLogLevelTrace];`
     } else {
-      logLevelCode = `  MobileCore.setLogLevel(.error)`
+      logLevelCode = `[AEPMobileCore setLogLevel:AEPLogLevelError];`
     }
 
     // check if the log level code is already added then remove it and add updated code
-    if (appDelegate.includes("MobileCore.setLogLevel")) {
+    if (appDelegate.includes("[AEPMobileCore setLogLevel:")) {
       appDelegate = appDelegate.replace(
-        /MobileCore.setLogLevel\(.+\);/,
+        /\[AEPMobileCore setLogLevel:[\s\S]*?\];/,
         logLevelCode
       );
     } else {
@@ -167,17 +167,17 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
 
     const dependencies = packageJson.dependencies;
 
-    let extensions = `Identity.self, Lifecycle.self, Signal.self`;
+    let extensions = `AEPMobileIdentity.class, AEPMobileLifecycle.class, AEPMobileSignal.class`;
 
-    const importsToAdd = ['@import AEPCore', '@import AEPLifecycle', '@import AEPSignal', '@import AEPIdentity'];
+    const importsToAdd = ['@import AEPCore;', '@import AEPLifecycle;', '@import AEPSignal;', '@import AEPIdentity;'];
     for (const [name] of Object.entries(dependencies)) {
       if (name.startsWith("@adobe/react-native-aepcore")) {
         continue;
       } else {
         // check if name is in the iosSdkMap
         if (iosSdkMap[ name ]) {
-          importsToAdd.push(`@import ${iosSdkMap[ name ]}`);
-          extensions = extensions + `, ${iosSdkClassMap[ name ]}.self`;
+          importsToAdd.push(`@import ${iosSdkMap[ name ]};`);
+          extensions = extensions + `, ${iosSdkClassMap[ name ]}.class`;
         }
       }
     }
@@ -186,16 +186,18 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
     if (importsToAdd.length === 0) {
       throw new Error("No SDKs found in package.json. Please add the SDKs to the project.")
     } else {
-      importsToAdd.push('@import AEPServices')
+      if (!importsToAdd.includes('@import AEPServices;')) {
+        importsToAdd.push('@import AEPServices;')
+      }
     }
 
     // Add AEP SDK import code in app delegate file
     const importCode = importsToAdd.join("\n");
 
     // check if import code is already added then remove it and add updated code
-    if (appDelegate.includes("@import AEPCore")) {
+    if (appDelegate.includes("@import AEPCore;")) {
       appDelegate = appDelegate.replace(
-        /@import AEPCore[\s\S]*@import AEPServices/,
+        /@import AEPCore[\s\S]*@import AEPServices;/,
         importCode
       );
     } else {
@@ -206,43 +208,49 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
       );
     }
 
-    // Add the SDK initialization code in the didFinishLaunchingWithOptions function
+    // Add SDK initialization code in the didFinishLaunchingWithOptions function in Objective-C
     const sdkInit = `
-  MobileCore.registerExtensions([${extensions}]) {
-    // Added by Adobe Expo Config Module
+
+  [AEPMobileCore configureWithAppId:@"${props.environmentFileId}"];
+  const UIApplicationState appState = application.applicationState;
+  [AEPMobileCore registerExtensions:@[${extensions}] completion:^{
     // Use the extensions in your app
-    MobileCore.registerWith(appId: "${props.environmentFileId}")
-    print("Extensions registered successfully")
-
-    if application.applicationState != .background {
-      // Only start lifecycle if the application is not in the background
-      MobileCore.lifecycleStart(additionalContextData: ["contextDataKey": "contextDataVal"])
+    NSLog(@"Extensions registered successfully");
+    [AEPMobileCore lifecycleStart:@{@"contextDataKey": @"contextDataVal"}];
+    if (appState != UIApplicationStateBackground) {
+      [AEPMobileCore lifecycleStart:nil];
     }
-  }
-    `;
+  }];
+
+  `
+
+
+  //   // Add the SDK initialization code in the didFinishLaunchingWithOptions function
+  //   const sdkInit = `
+  // MobileCore.registerExtensions([${extensions}]) {
+  //   // Added by Adobe Expo Config Module
+  //   // Use the extensions in your app
+  //   MobileCore.registerWith(appId: "${props.environmentFileId}")
+  //   print("Extensions registered successfully")
+
+  //   if application.applicationState != .background {
+  //     // Only start lifecycle if the application is not in the background
+  //     MobileCore.lifecycleStart(additionalContextData: ["contextDataKey": "contextDataVal"])
+  //   }
+  // }
+  //   `;
 
 
 
 
-    if (appDelegate.includes("MobileCore.registerExtensions")) {
-      // update the extension part in MobileCore.registerExtensions
+    if (appDelegate.includes("AEPMobileCore registerExtensions:@[")) {
+
+      // replace the extensions with new extensions string
       appDelegate = appDelegate.replace(
-        /MobileCore\.registerExtensions\(\[.*?\]\)/,
-        `MobileCore.registerExtensions([${extensions}])`
+        /AEPMobileCore registerExtensions:@\[[\s\S]*?\] completion/,
+        `AEPMobileCore registerExtensions:@[${extensions}] completion`
       );
 
-
-
-
-
-      // console.log('Code is already present', sdkInit);
-      // console.log('old code', appDelegate);
-      // // remove the existing code and add the updated code
-      // appDelegate = appDelegate.replace(
-      //   /MobileCore.registerExtensions\([\s\S]*?\)\s*\{[\s\S]*?MobileCore.setLogLevel\(\.[\s\S]*?\);/,
-      //   `${sdkInit}\n${logLevelCode}`
-      // );
-      // console.log('Updated code', appDelegate);
     } else {
       // add the code to the didFinishLaunchingWithOptions function
       appDelegate = appDelegate.replace(
