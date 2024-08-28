@@ -7,7 +7,7 @@ const path = require("path");
 
 // map of aep's react native sdk's and their android counterparts
 const androidSdkExtensionMap: Record<string, string> = {
-  '@adobe/react-native-aepcore': 'Core',
+  // '@adobe/react-native-aepcore': 'Core',
   '@adobe/react-native-aepuserprofile': 'UserProfile',
   '@adobe/react-native-aepedge': 'Edge',
   '@adobe/react-native-aepassurance': 'Assurance',
@@ -35,12 +35,12 @@ const androidSdkImportMap: Record<string, string> = {
   '@adobe/react-native-aeptarget': 'import com.adobe.marketing.mobile.Target',
   '@adobe/react-native-aepcampaignclassic': 'import com.adobe.marketing.mobile.CampaignClassic',
 };
-
 const withCoreMainApplication: ConfigPlugin<SdkConfigurationProps> = (
   config,
   { logLevel, environmentFileId }
 ) => {
-  // modify the mainApplication file her to include the SDK initialization in the onCreate func
+  // Modify the mainApplication file here to include the SDK initialization in the onCreate function
+
   return withMainApplication(config, (config) => {
     let mainApplication = config.modResults.contents;
 
@@ -50,44 +50,47 @@ const withCoreMainApplication: ConfigPlugin<SdkConfigurationProps> = (
       MobileCore.setLogLevel(LoggingMode.${logLevel});
     `;
 
-
-    // Read the application dependencies from package.json and add them imports to MainApplication.kt
+    // Read the application dependencies from package.json and add the imports to MainApplication.kt
     const packageJsonPath = path.resolve(process.cwd(), "package.json");
-    const packageJson = JSON.parse(fs
-      .readFileSync(packageJsonPath, "utf8")
-    );
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
     const dependencies = packageJson.dependencies;
 
     let importsToAdd = [];
+    let extensions = `Lifecycle.EXTENSION, Signal.EXTENSION, Identity.EXTENSION`;
 
-    // create an extensions list with Lifecycle, Signal, and Identity
-    let extensions = `Lifecycle.EXTENSION(), Signal.EXTENSION(), Identity.EXTENSION()`;
-
-    // iterate over the dependencies and add the imports to the mainApplication file
+    // Iterate over the dependencies and add the imports to the mainApplication file
     for (const [name] of Object.entries(dependencies)) {
       if (androidSdkImportMap[name]) {
-        importsToAdd.push(androidSdkImportMap[ name ]);
+        importsToAdd.push(androidSdkImportMap[name]);
 
-        // also update extensions list with the extension for the sdk
-        extensions = extensions + `, ${androidSdkExtensionMap[ name ]}.EXTENSION()`;
+        // Also update extensions list with the extension for the SDK
+        if (androidSdkExtensionMap[name]) {
+          extensions += `, ${androidSdkExtensionMap[name]}.EXTENSION`;
+        }
       }
 
       if (name === "@adobe/react-native-aepcore") {
-        importsToAdd.push("import com.adobe.marketing.mobile.LifeCycle");
+        importsToAdd.push("import com.adobe.marketing.mobile.Lifecycle");
         importsToAdd.push("import com.adobe.marketing.mobile.Signal");
         importsToAdd.push("import com.adobe.marketing.mobile.Identity");
+        importsToAdd.push("import android.util.Log");
+        importsToAdd.push("import com.adobe.marketing.mobile.LoggingMode")
+        
       }
     }
 
-    // Add the import statements to the mainApplication file at the top
-    mainApplication = mainApplication.replace(
-      /package com.*;/,
-      `${importsToAdd.join("\n")}\n\npackage com.*;`
+    // Check for existing imports to avoid duplication
+    const importRegex = new RegExp(
+      importsToAdd.map(importLine => importLine.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')
     );
+    if (!importRegex.test(mainApplication)) {
+      mainApplication = mainApplication.replace(
+        /(package\s+com\..*?)(\s|$)/,
+        `$1;\n\n${importsToAdd.join("\n")}\n\n`
+      );
+    }
 
-    const extensionCode = `val extensions = listOf(${ extensions })`;
-
-    // Register Extensions with MobileCore
+    const extensionCode = `val extensions = listOf(${extensions})`;
     const registerExtensions = `
       ${extensionCode}
       MobileCore.registerExtensions(extensions) {
@@ -96,13 +99,20 @@ const withCoreMainApplication: ConfigPlugin<SdkConfigurationProps> = (
       }
     `;
 
-    // insert all the code from above after super.onCreate();
-    mainApplication = mainApplication.replace(
-      /super.onCreate\(\);/,
-      `super.onCreate();\n        ${sdkInit}\n        ${registerExtensions}`
-    );
+    // Check if the SDK initialization code is already present to avoid duplication
+    const sdkInitRegex = new RegExp(`${sdkInit.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`);
+    const registerExtensionsRegex = new RegExp(`${registerExtensions.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`);
 
+    if (!sdkInitRegex.test(mainApplication) && !registerExtensionsRegex.test(mainApplication)) {
+      // Insert all the code after super.onCreate();
+      mainApplication = mainApplication.replace(
+        /super\.onCreate\(\)/,
+        `super.onCreate();\n        ${sdkInit}\n        ${registerExtensions}`
+      );
+      
+    }
 
+    config.modResults.contents = mainApplication;
 
     return config;
   });
@@ -113,3 +123,4 @@ export const withCoreAndroidSdk: ConfigPlugin<SdkConfigurationProps> = (config, 
 
   return config;
 };
+

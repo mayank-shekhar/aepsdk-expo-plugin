@@ -14,7 +14,10 @@ const withSdkConfiguration: ConfigPlugin<SdkConfigurationProps> = (
     environmentFileId: "default-file-id",
     logLevel: 1,
   };
+
   config = withCoreiOSSdk(config, props);
+
+
   config = withCoreAndroidSdk(config, props);
   return config;
 };
