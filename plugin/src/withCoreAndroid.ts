@@ -69,6 +69,7 @@ const withCoreMainApplication: ConfigPlugin<SdkConfigurationProps> = (
         }
       }
 
+
       if (name === "@adobe/react-native-aepcore") {
         importsToAdd.push("import com.adobe.marketing.mobile.Lifecycle");
         importsToAdd.push("import com.adobe.marketing.mobile.Signal");
@@ -80,16 +81,31 @@ const withCoreMainApplication: ConfigPlugin<SdkConfigurationProps> = (
     }
 
     // Check for existing imports to avoid duplication
-    const importRegex = new RegExp(
-      importsToAdd.map(importLine => importLine.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')
-    );
-    if (!importRegex.test(mainApplication)) {
+    // const importRegex = new RegExp(
+    //   importsToAdd.map(importLine => importLine.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')
+    // );
+    // if (!importRegex.test(mainApplication)) {
+    //   mainApplication = mainApplication.replace(
+    //     /(package\s+com\..*?)(\s|$)/,
+    //     `$1;\n\n${importsToAdd.join("\n")}\n\n`
+    //   );
+    // }
+
+
+    const areAllImportsPresent = importsToAdd.every(importLine => {
+      const escapedImport = importLine.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const importRegex = new RegExp(escapedImport);
+      return importRegex.test(mainApplication);
+    });
+    
+    //will cater the case of different sequence of imports  
+    if (!areAllImportsPresent) {
       mainApplication = mainApplication.replace(
         /(package\s+com\..*?)(\s|$)/,
         `$1;\n\n${importsToAdd.join("\n")}\n\n`
       );
     }
-
+    
     const extensionCode = `val extensions = listOf(${extensions})`;
     const registerExtensions = `
       ${extensionCode}
@@ -107,7 +123,7 @@ const withCoreMainApplication: ConfigPlugin<SdkConfigurationProps> = (
       // Insert all the code after super.onCreate();
       mainApplication = mainApplication.replace(
         /super\.onCreate\(\)/,
-        `super.onCreate();\n        ${sdkInit}\n        ${registerExtensions}`
+        `super.onCreate()\n        ${sdkInit}\n        ${registerExtensions}`
       );
       
     }
