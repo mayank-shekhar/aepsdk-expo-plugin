@@ -1,19 +1,5 @@
 #import "AppDelegate.h"
-// Added by Adobe Expo SDK Plugin
-@import AEPCore;
-@import AEPLifecycle;
-@import AEPSignal;
-@import AEPIdentity;
-@import AEPAssurance;
-@import AEPEdge;
-@import AEPEdgeBridge;
-@import AEPEdgeConsent;
-@import AEPEdgeIdentity;
-@import AEPMessaging;
-@import AEPOptimize;
-@import AEPPlaces;
-@import AEPUserProfile;
-@import AEPServices;
+// #import "AdobeBridge.h"
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
@@ -28,20 +14,7 @@
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
 
-
-  [AEPMobileCore configureWithAppId:@"example"];
-  const UIApplicationState appState = application.applicationState;
-  [AEPMobileCore registerExtensions:@[AEPMobileIdentity.class, AEPMobileLifecycle.class, AEPMobileSignal.class, AEPMobileAssurance.class, AEPMobileEdge.class, AEPMobileEdgeBridge.class, AEPMobileEdgeConsent.class, AEPMobileEdgeIdentity.class, AEPMobileMessaging.class, AEPMobileOptimize.class, AEPMobilePlaces.class, AEPMobileUserProfile.class] completion:^{
-    // Use the extensions in your app
-    NSLog(@"Extensions registered successfully");
-    [AEPMobileCore lifecycleStart:@{@"contextDataKey": @"contextDataVal"}];
-    if (appState != UIApplicationStateBackground) {
-      [AEPMobileCore lifecycleStart:nil];
-    }
-  }];
-
-
-  [AEPMobileCore setLogLevel:AEPLogLevelDebug];
+  // [AdobeBridge configure: application.applicationState];
 
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];

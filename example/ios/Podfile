@@ -59,6 +59,16 @@ target 'aepsdkexpopluginexample' do
           end
       end
     
+      # # Added by Adobe Expo SDK Plugin
+      installer.pods_project.targets.each do |t|
+          if t.name.start_with?("AEP")
+            t.build_configurations.each do |bc|
+                bc.build_settings['OTHER_SWIFT_FLAGS'] = '$(inherited) -no-verify-emitted-module-interface'
+                bc.build_settings['SWIFT_INSTALL_OBJC_HEADER'] = 'NO'
+            end
+          end
+      end
+
     react_native_post_install(
       installer,
       config[:reactNativePath],

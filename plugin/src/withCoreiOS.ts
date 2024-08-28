@@ -35,27 +35,27 @@ const iosSdkClassMap: Record<string, string> = {
   "@adobe/react-native-aepcampaignclassic": "AEPMobileCampaignClassic",
 };
 
-const withCoreInfoPlist: ConfigPlugin<SdkConfigurationProps> = (
-  config,
-  { logLevel, environmentFileId },
-) => {
-  return withInfoPlist(config, (config) => {
-    delete config.modResults.AEPSDK;
-    if (environmentFileId) {
-      config.modResults.AEPSDK = {
-        environmentFileId,
-      };
-    }
+// const withCoreInfoPlist: ConfigPlugin<SdkConfigurationProps> = (
+//   config,
+//   { logLevel, environmentFileId },
+// ) => {
+//   return withInfoPlist(config, (config) => {
+//     delete config.modResults.AEPSDK;
+//     if (environmentFileId) {
+//       config.modResults.AEPSDK = {
+//         environmentFileId,
+//       };
+//     }
 
-    if (logLevel) {
-      config.modResults.AEPSDK = {
-        ...config.modResults.AEPSDK,
-        logLevel,
-      };
-    }
-    return config;
-  });
-};
+//     if (logLevel) {
+//       config.modResults.AEPSDK = {
+//         ...config.modResults.AEPSDK,
+//         logLevel,
+//       };
+//     }
+//     return config;
+//   });
+// };
 
 const withCorePodfile: ConfigPlugin<SdkConfigurationProps> = (
   config,
@@ -119,6 +119,147 @@ const withCoreXcodeProject: ConfigPlugin<SdkConfigurationProps> = (
     config.modResults = pbxproj;
 
     return config
+  });
+};
+
+// Create a new config plugin to create new AdobeBridge.h and AdobeBridge.m files and add it to ios project
+export const withCoreBridgeFiles: ConfigPlugin<SdkConfigurationProps> = (config, {environmentFileId, logLevel}) => {
+  return withXcodeProject(config, (config) => {
+    const { modResults } = config;
+    const projectName = path.basename(config.modRequest.projectName);
+    console.log("projectName: ", projectName);
+
+    let logLevelCode = `  `;
+    if (logLevel == "DEBUG") {
+      logLevelCode = `[AEPMobileCore setLogLevel:AEPLogLevelDebug];`
+    } else if (logLevel == "ERROR") {
+      logLevelCode = `[AEPMobileCore setLogLevel:AEPLogLevelError];`
+    } else if (logLevel == "WARNING") {
+      logLevelCode = `[AEPMobileCore setLogLevel:AEPLogLevelWarning];`
+    } else if (logLevel == "VERBOSE" || logLevel == "INFO") {
+      logLevelCode = `[AEPMobileCore setLogLevel:AEPLogLevelTrace];`
+    } else {
+      logLevelCode = `[AEPMobileCore setLogLevel:AEPLogLevelError];`
+    }
+
+    // Get the ios project path
+    const projectPath = path.join(process.cwd(), `ios/${projectName}`);
+
+    // Create the AdobeBridge.h file
+    const bridgeHeaderPath = path.join(projectPath, 'AdobeBridge.h');
+    if (!fs.existsSync(bridgeHeaderPath)) {
+      fs.writeFileSync(bridgeHeaderPath, `#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+@interface AdobeBridge : NSObject
++ (void)configure: (UIApplicationState)state;
+@end`);
+    }
+
+    const packageJsonPath = path.resolve(process.cwd(), "package.json");
+    const packageJson = JSON.parse(fs
+      .readFileSync(packageJsonPath, "utf8")
+    );
+
+    const dependencies = packageJson.dependencies;
+
+    let extensions = `AEPMobileIdentity.class, AEPMobileLifecycle.class, AEPMobileSignal.class`;
+
+    const importsToAdd = ['@import AEPCore;', '@import AEPLifecycle;', '@import AEPSignal;', '@import AEPIdentity;'];
+    for (const [name] of Object.entries(dependencies)) {
+      if (name.startsWith("@adobe/react-native-aepcore")) {
+        continue;
+      } else {
+        // check if name is in the iosSdkMap
+        if (iosSdkMap[ name ]) {
+          importsToAdd.push(`@import ${iosSdkMap[ name ]};`);
+          extensions = extensions + `, ${iosSdkClassMap[ name ]}.class`;
+        }
+      }
+    }
+
+    if (importsToAdd.length === 0) {
+      throw new Error("No SDKs found in package.json. Please add the SDKs to the project.")
+    } else {
+      if (!importsToAdd.includes('@import AEPServices;')) {
+        importsToAdd.push('@import AEPServices;')
+      }
+    }
+
+    // Add AEP SDK import code in app delegate file
+    const importCode = importsToAdd.join("\n");
+
+    // Create the AdobeBridge.m file
+    const bridgeImplementationPath = path.join(projectPath, 'AdobeBridge.m');
+      fs.writeFileSync(bridgeImplementationPath, `
+#import "AdobeBridge.h"
+#import <UIKit/UIKit.h>
+
+${importCode}
+
+@implementation AdobeBridge
++ (void)configure: (UIApplicationState)appState
+{
+  ${logLevelCode}
+  NSArray *extensionsToRegister = @[${extensions}];
+      [AEPMobileCore registerExtensions:extensionsToRegister completion:^{
+        [AEPMobileCore configureWithAppId: @"${environmentFileId}"];
+        if (appState != UIApplicationStateBackground) {
+            [AEPMobileCore lifecycleStart:@{@"": @""}];
+        }
+    }];
+}
+@end`);
+
+    // Update AppDelegate.h to include #import <ExpoModulesCore/EXAppDelegateWrapper.h> if it doesn't already
+    const appDelegateHeaderPath = path.join(projectPath, 'AppDelegate.h');
+    let appDelegateHeader = fs.readFileSync(appDelegateHeaderPath, 'utf8');
+
+    // place #import <Expo/Expo.h> with #import <ExpoModulesCore/EXAppDelegateWrapper.h>
+    if (appDelegateHeader.includes('#import <Expo/Expo.h>') && !appDelegateHeader.includes('#import <ExpoModulesCore/EXAppDelegateWrapper.h>')) {
+      appDelegateHeader = appDelegateHeader.replace(
+        /#import <Expo\/Expo.h>/,
+        `#import <ExpoModulesCore/EXAppDelegateWrapper.h>`
+      );
+      fs.writeFileSync(appDelegateHeaderPath, appDelegateHeader);
+    }
+
+
+
+    return config;
+  });
+}
+
+export const withUpdatedAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
+  config,
+  props) => {
+  return withAppDelegate(config, (config) => {
+    const appDelegateContent = config.modResults.contents;
+
+    // Add the import statements for AdobeBridge files
+    const importCode = `#import "AdobeBridge.h"`;
+
+    if (!appDelegateContent.includes(importCode)) {
+      config.modResults.contents = appDelegateContent.replace(
+        /#import "AppDelegate.h"/,
+        `#import "AppDelegate.h"\n${importCode}`
+      );
+    }
+
+    // Add the AdobeBridge configuration code
+
+    const bridgeInitCode = `
+  [AdobeBridge configure: application.applicationState];
+  `;
+    if (appDelegateContent.includes("[AdobeBridge configure: application.applicationState];")) {
+      return config;
+    } else {
+      config.modResults.contents = appDelegateContent.replace(
+        /self.initialProps = @{};/,
+        `self.initialProps = @{};\n${bridgeInitCode}`
+      );
+    }
+
+    return config;
   });
 };
 
@@ -221,8 +362,9 @@ export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
       [AEPMobileCore lifecycleStart:nil];
     }
   }];
-
   `
+
+
 
 
   //   // Add the SDK initialization code in the didFinishLaunchingWithOptions function
@@ -275,7 +417,9 @@ export const withCoreiOSSdk: ConfigPlugin<SdkConfigurationProps> = (
   config = withCorePodfile(config, props);
   config = withCoreXcodeProject(config, props);
   // config = withCoreInfoPlist(config, props);
-  config = withCoreAppDelegate(config, props);
+  // config = withCoreAppDelegate(config, props);
+  config = withCoreBridgeFiles(config, props);
+  config = withUpdatedAppDelegate(config, props);
 
   return config;
 };
