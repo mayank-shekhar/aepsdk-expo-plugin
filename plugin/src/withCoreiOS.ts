@@ -35,28 +35,6 @@ const iosSdkClassMap: Record<string, string> = {
   "@adobe/react-native-aepcampaignclassic": "AEPMobileCampaignClassic",
 };
 
-// const withCoreInfoPlist: ConfigPlugin<SdkConfigurationProps> = (
-//   config,
-//   { logLevel, environmentFileId },
-// ) => {
-//   return withInfoPlist(config, (config) => {
-//     delete config.modResults.AEPSDK;
-//     if (environmentFileId) {
-//       config.modResults.AEPSDK = {
-//         environmentFileId,
-//       };
-//     }
-
-//     if (logLevel) {
-//       config.modResults.AEPSDK = {
-//         ...config.modResults.AEPSDK,
-//         logLevel,
-//       };
-//     }
-//     return config;
-//   });
-// };
-
 const withCorePodfile: ConfigPlugin<SdkConfigurationProps> = (
   config,
   props,
@@ -209,6 +187,47 @@ ${importCode}
     }];
 }
 @end`);
+
+    // Update the xcode project file to include the AdobeBridge files
+    // const pbxproj = modResults;
+    // const fileRef = pbxproj.generateUuid();
+    // console.log("fileRef: ", fileRef);
+    // const bridgeHeaderFile = {
+    //   fileRef,
+    //   group: 'Sources',
+    //   isBuildFile: true,
+    //   basename: 'AdobeBridge.h',
+    //   settings: {ATTRIBUTES: ['Public']}
+    // };
+    // const bridgeImplementationFile = {
+    //   fileRef,
+    //   group: 'Sources',
+    //   isBuildFile: true,
+    //   basename: 'AdobeBridge.m',
+    //   settings: {ATTRIBUTES: ['Public']}
+    // };
+    // pbxproj.addToPbxFileReferenceSection(bridgeHeaderFile);
+    // pbxproj.addToPbxFileReferenceSection(bridgeImplementationFile);
+    // pbxproj.addToPbxBuildFileSection(bridgeHeaderFile);
+    // pbxproj.addToPbxBuildFileSection(bridgeImplementationFile);
+    // pbxproj.addToPbxSourcesBuildPhase(bridgeHeaderFile);
+    // pbxproj.addToPbxSourcesBuildPhase(bridgeImplementationFile);
+    // pbxproj.addToPbxGroup('Sources', bridgeHeaderFile);
+    // pbxproj.addToPbxGroup('Sources', bridgeImplementationFile);
+    // pbxproj.addToLibrarySearchPaths('$(inherited)');
+    // pbxproj.addToHeaderSearchPaths('$(inherited)');
+    // pbxproj.addToFrameworkSearchPaths('$(inherited)');
+    // pbxproj.addToOtherCFlags('$(inherited)');
+    // pbxproj.addToOtherSwiftFlags('$(inherited)');
+    // pbxproj.addToBuildSettings('HEADER_SEARCH_PATHS', '"$(inherited)"');
+    // pbxproj.addToBuildSettings('FRAMEWORK_SEARCH_PATHS', '"$(inherited)"');
+    // pbxproj.addToBuildSettings('OTHER_CFLAGS', '"$(inherited)"');
+    // pbxproj.addToBuildSettings('OTHER_SWIFT_FLAGS', '"$(inherited)"');
+    // pbxproj.addToBuildSettings('SWIFT_VERSION', '5.0');
+    // pbxproj.addToBuildSettings('CLANG_ENABLE_MODULES', 'YES');
+    // pbxproj.addToBuildSettings('CLANG_ENABLE_MODULE_IMPLEMENTATION', 'YES');
+    // pbxproj.addToBuildSettings('SWIFT_OBJC_BRIDGING_HEADER', 'ExpoBridge-Bridging-Header.h');
+
 
     // Update AppDelegate.h to include #import <ExpoModulesCore/EXAppDelegateWrapper.h> if it doesn't already
     const appDelegateHeaderPath = path.join(projectPath, 'AppDelegate.h');

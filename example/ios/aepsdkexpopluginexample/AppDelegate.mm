@@ -1,5 +1,6 @@
 #import "AppDelegate.h"
-// #import "AdobeBridge.h"
+#import "AdobeBridge.h"
+
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
@@ -14,7 +15,7 @@
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
 
-  // [AdobeBridge configure: application.applicationState];
+  [AdobeBridge configure: application.applicationState];
 
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
