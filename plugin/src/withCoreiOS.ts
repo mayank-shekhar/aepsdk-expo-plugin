@@ -252,13 +252,13 @@ export const withUpdatedAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
   config,
   props) => {
   return withAppDelegate(config, (config) => {
-    const appDelegateContent = config.modResults.contents;
+    let appDelegateContent = config.modResults.contents;
 
     // Add the import statements for AdobeBridge files
     const importCode = `#import "AdobeBridge.h"`;
 
     if (!appDelegateContent.includes(importCode)) {
-      config.modResults.contents = appDelegateContent.replace(
+      appDelegateContent = appDelegateContent.replace(
         /#import "AppDelegate.h"/,
         `#import "AppDelegate.h"\n${importCode}`
       );
@@ -272,11 +272,13 @@ export const withUpdatedAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
     if (appDelegateContent.includes("[AdobeBridge configure: application.applicationState];")) {
       return config;
     } else {
-      config.modResults.contents = appDelegateContent.replace(
+      appDelegateContent = appDelegateContent.replace(
         /self.initialProps = @{};/,
         `self.initialProps = @{};\n${bridgeInitCode}`
       );
     }
+
+    config.modResults.contents = appDelegateContent;
 
     return config;
   });

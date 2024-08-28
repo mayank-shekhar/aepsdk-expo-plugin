@@ -16,7 +16,7 @@
   self.initialProps = @{};
 
   [AdobeBridge configure: application.applicationState];
-
+  
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
