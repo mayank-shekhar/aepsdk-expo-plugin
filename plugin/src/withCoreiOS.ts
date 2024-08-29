@@ -189,6 +189,62 @@ ${importCode}
 }
 @end`);
 
+     // Update the xcode project file to include the AdobeBridge files
+    const pbxproj = modResults;
+    const headerFileRef = pbxproj.generateUuid(),
+      headerFileUuid = pbxproj.generateUuid(),
+      implementationFileRef = pbxproj.generateUuid(),
+      implementationFileUuid = pbxproj.generateUuid();
+    const bridgeHeaderFile = {
+      fileRef: headerFileRef,
+      uuid: headerFileUuid,
+      group: 'Sources',
+      isBuildFile: false,
+      basename: 'AdobeBridge.h',
+      path: `${projectName}/AdobeBridge.h`,
+      sourceTree: '"<group>"',
+      fileEncoding: '4',
+      lastKnownFileType: 'sourcecode.c.h',
+    };
+    const bridgeImplementationFile = {
+      fileRef: implementationFileRef,
+      uuid: implementationFileUuid,
+      group: 'Sources',
+      isBuildFile: true,
+      basename: 'AdobeBridge.m',
+      path: `${projectName}/AdobeBridge.m`,
+      sourceTree: '"<group>"',
+      fileEncoding: '4',
+      lastKnownFileType: 'sourcecode.c.objc',
+    };
+
+    pbxproj.removeFromPbxBuildFileSection(bridgeImplementationFile);
+
+    pbxproj.addToPbxBuildFileSection(bridgeImplementationFile);
+
+
+    pbxproj.removeFromPbxFileReferenceSection(bridgeHeaderFile);
+    pbxproj.removeFromPbxFileReferenceSection(bridgeImplementationFile);
+    pbxproj.addToPbxFileReferenceSection(bridgeHeaderFile);
+    pbxproj.addToPbxFileReferenceSection(bridgeImplementationFile);
+
+
+    // get first target
+
+    const pbxGroupKey = pbxproj.findPBXGroupKey({ name: projectName });
+
+    // first remove if already present in PXXGroup, and then add file to prjectName PBXGroup
+    pbxproj.removeFromPbxGroup(bridgeHeaderFile, pbxGroupKey);
+    pbxproj.removeFromPbxGroup(bridgeImplementationFile, pbxGroupKey);
+    pbxproj.addToPbxGroup(bridgeHeaderFile, pbxGroupKey);
+    pbxproj.addToPbxGroup(bridgeImplementationFile, pbxGroupKey);
+
+    // Add AdobeBridge.m to build phase section
+    pbxproj.addToPbxSourcesBuildPhase({
+        ...bridgeImplementationFile,
+        target: pbxproj.getFirstTarget().uuid,
+    });
+
     // Update AppDelegate.h to include #import <ExpoModulesCore/EXAppDelegateWrapper.h> if it doesn't already
     const appDelegateHeaderPath = path.join(projectPath, 'AppDelegate.h');
     let appDelegateHeader = fs.readFileSync(appDelegateHeaderPath, 'utf8');
@@ -201,8 +257,6 @@ ${importCode}
       );
       fs.writeFileSync(appDelegateHeaderPath, appDelegateHeader);
     }
-
-
 
     return config;
   });
