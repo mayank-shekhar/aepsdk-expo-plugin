@@ -12,14 +12,10 @@ const path = require('path');
 
 // map of aep's react native sdk's and their android counterparts
 const androidSdkExtensionMap: Record<string, string> = {
-  // '@adobe/react-native-aepcore': 'Core',
   '@adobe/react-native-aepuserprofile': 'UserProfile',
   '@adobe/react-native-aepedge': 'Edge',
   '@adobe/react-native-aepassurance': 'Assurance',
-
-  // to confirm if this s the import that is needed
-  //'@adobe/react-native-aepedgeidentity': 'EdgeIdentity',
-  '@adobe/react-native-aepedgeidentity': 'com.adobe.marketing.mobile.edge.identity.Identity',
+  '@adobe/react-native-aepedgeidentity': 'Identity',
   '@adobe/react-native-aepedgeconsent': 'Consent',
   '@adobe/react-native-aepedgebridge': 'EdgeBridge',
   '@adobe/react-native-aepmessaging': 'Messaging',
@@ -34,11 +30,9 @@ const androidSdkImportMap: Record<string, string> = {
   '@adobe/react-native-aepuserprofile': 'import com.adobe.marketing.mobile.UserProfile',
   '@adobe/react-native-aepedge': 'import com.adobe.marketing.mobile.Edge',
   '@adobe/react-native-aepassurance': 'import com.adobe.marketing.mobile.Assurance',
-  // todo to ask for its import as it is not in documentation
-  //'@adobe/react-native-aepedgeidentity': 'import com.adobe.marketing.mobile.EdgeIdentity',
-
+  '@adobe/react-native-aepedgeidentity': 'import com.adobe.marketing.mobile.edge.identity.Identity',
   '@adobe/react-native-aepedgeconsent': 'import com.adobe.marketing.mobile.edge.consent.Consent',
-  '@adobe/react-native-aepedgebridge': 'import com.adobe.marketing.mobile.EdgeBridge',
+  '@adobe/react-native-aepedgebridge': 'import com.adobe.marketing.mobile.edge.bridge.EdgeBridge',
   '@adobe/react-native-aepmessaging': 'import com.adobe.marketing.mobile.Messaging',
   '@adobe/react-native-aepoptimize': 'import com.adobe.marketing.mobile.Optimize',
   '@adobe/react-native-aepplaces': 'import com.adobe.marketing.mobile.Places',
@@ -68,26 +62,16 @@ const withCoreMainApplication: ConfigPlugin<SdkConfigurationProps> = (
     let importsToAdd = [
       'import com.adobe.marketing.mobile.Lifecycle',
       'import com.adobe.marketing.mobile.Signal',
-      'import com.adobe.marketing.mobile.Identity',
       'import android.util.Log',
       'import com.adobe.marketing.mobile.LoggingMode',
     ];
-    let extensions = `Lifecycle.EXTENSION, Signal.EXTENSION, Identity.EXTENSION`;
+    let extensions = `Lifecycle.EXTENSION, Signal.EXTENSION`;
 
     // Iterate over the dependencies and add the imports to the mainApplication file
     for (const [name] of Object.entries(dependencies)) {
       if (name === '@adobe/react-native-aepcore') {
         continue;
       }
-      // to do will be removing this commented code
-      // if (androidSdkImportMap[name]) {
-      //   importsToAdd.push(androidSdkImportMap[name]);
-
-      //   // Also update extensions list with the extension for the SDK
-      //   if (androidSdkExtensionMap[name]) {
-      //     extensions += `, ${androidSdkExtensionMap[name]}.EXTENSION`;
-      //   }
-      // }
 
       if (androidSdkImportMap[name]) {
         importsToAdd.push(androidSdkImportMap[name]);
