@@ -34,7 +34,7 @@ const androidSdkImportMap: Record<string, string> = {
   '@adobe/react-native-aepedgeconsent': 'import com.adobe.marketing.mobile.edge.consent.Consent',
   '@adobe/react-native-aepedgebridge': 'import com.adobe.marketing.mobile.edge.bridge.EdgeBridge',
   '@adobe/react-native-aepmessaging': 'import com.adobe.marketing.mobile.Messaging',
-  '@adobe/react-native-aepoptimize': 'import com.adobe.marketing.mobile.Optimize',
+  '@adobe/react-native-aepoptimize': 'import com.adobe.marketing.mobile.optimize.Optimize',
   '@adobe/react-native-aepplaces': 'import com.adobe.marketing.mobile.Places',
   '@adobe/react-native-aeptarget': 'import com.adobe.marketing.mobile.Target',
   '@adobe/react-native-aepcampaignclassic': 'import com.adobe.marketing.mobile.CampaignClassic',
