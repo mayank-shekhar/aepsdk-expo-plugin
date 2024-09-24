@@ -1,10 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { MobileCore } from '@adobe/react-native-aepcore';
+import { MobileCore, Lifecycle } from '@adobe/react-native-aepcore';
 import { useEffect, useState } from 'react';
 
 export default function App() {
   const [version, setVersion] = useState('');
   useEffect(() => {
+    Lifecycle.extensionVersion().then(version =>
+      console.log('AdobeExperienceSDK: Lifecycle version: ' + version),
+    );
+
     MobileCore.extensionVersion().then((version) => {
       console.log('Extension version: ', version);
       setVersion(version);
