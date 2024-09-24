@@ -56,6 +56,21 @@ class MainApplication : Application(), ReactApplication {
   override val reactHost: ReactHost
     get() = ReactNativeHostWrapper.createReactHost(applicationContext, reactNativeHost)
 
+  override fun onResume() {
+        super.onResume();
+        
+    MobileCore.setApplication(getApplication());
+    MobileCore.lifecycleStart(null);
+    
+    }
+
+  override fun onPause() {
+        super.onPause();
+        
+    MobileCore.lifecyclePause();
+    
+    }
+
   override fun onCreate() {
     super.onCreate()
          
@@ -65,7 +80,12 @@ class MainApplication : Application(), ReactApplication {
     
         
       val extensions = listOf(Lifecycle.EXTENSION, Signal.EXTENSION, Assurance.EXTENSION, Edge.EXTENSION, EdgeBridge.EXTENSION, Consent.EXTENSION, Identity.EXTENSION, Messaging.EXTENSION, Optimize.EXTENSION, Places.EXTENSION, UserProfile.EXTENSION)
-      MobileCore.registerExtensions(extensions) {
+      MobileCore.registerExtensions(extensions,
+      AdobeCallback { o: Any? ->
+        MobileCore.lifecycleStart(
+          null
+        )
+      }) {
         // Use the extensions in your app
         Log.d("CoreExtensions", "Extensions registered successfully");
       }
