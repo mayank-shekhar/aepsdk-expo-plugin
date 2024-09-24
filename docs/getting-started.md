@@ -33,6 +33,18 @@ This plugin provides the following features:
 
 **The Expo plugin takes care of adding or removing the native code and configuring the SDKs with the provided configuration. You will not need to write any native code to integrate the SDKs.**
 
+### Configuration options
+
+In you application, open the expo's `app.json` file and modify the plugins section to include the Adobe Experience Platform SDK Expo plugin.
+
+The plugin has the following configuration options:
+
+- `environmentFileId`: The environment file ID from the Adobe Experience Platform Mobile Tag property value.
+- `logLevel`: The log level for the SDK. The available options are `VERBOSE`, `DEBUG`, `INFO`, `WARNING`, `ERROR`, and `ASSERT`.
+- `allowNativeChanges`: A boolean value to allow the plugin to make changes to the native code. The default value is `true`. Since it is expected that this plugin is used in new Expo projects. You can set this to `false` if you do not want the Plugin to make changes to the native code.
+- `allowPodFileChanges`: A boolean value to allow the plugin to make changes to the Podfile. The default value is `true`. Since it is expected that this plugin is used in new Expo projects. You can set this to `false` if you do not want the Plugin to make changes to the Podfile.
+- `allowBuildSettingsChanges`: A boolean value to allow the plugin to make changes to the build settings. The default value is `true`. Since it is expected that this plugin is used in new Expo projects. You can set this to `false` if you do not want the Plugin to make changes to the build settings.
+
 ### For new Expo projects
 
 #### Installation
@@ -63,12 +75,6 @@ Please install the RN SDKs required in your application using this documentation
 
 In you application, open the expo's `app.json` file and modify the plugins section to include the Adobe Experience Platform SDK Expo plugin.
 
-The plugin has the following configuration options:
-
-- `environmentFileId`: The environment file ID from the Adobe Experience Platform Mobile Tag property value.
-- `logLevel`: The log level for the SDK. The available options are `VERBOSE`, `DEBUG`, `INFO`, `WARNING`, `ERROR`, and `ASSERT`.
-- `allowNativeChanges`: A boolean value to allow the plugin to make changes to the native code. The default value is `true`. Since it is expected that this plugin is used in new Expo projects. You can set this to `false` if you do not want the Plugin to make changes to the native code.
-
 ```json
 {
   "expo": {
@@ -77,8 +83,7 @@ The plugin has the following configuration options:
         "@adobe/aepsdk-expo-plugin",
         {
           "environmentFileId": "YOUR_ENVIRONMENT_FILE_ID",
-          "logLevel": "VERBOSE",
-          "allowNativeChanges": true
+          "logLevel": "VERBOSE"
         }
       ]
     ]
@@ -94,17 +99,7 @@ If you have an existing Expo project and have already installed the Adobe Experi
 
 > You can skip any native code changes using `allowNativeChanges` configuration.
 
-#### Configuration
 
-In you application, open the expo's `app.json` file and modify the plugins section to include the Adobe Experience Platform SDK Expo plugin.
-
-The plugin has the following configuration options:
-
-- `environmentFileId`: The environment file ID from the Adobe Experience Platform Mobile Tag property value.
-- `logLevel`: The log level for the SDK. The available options are `VERBOSE`, `DEBUG`, `INFO`, `WARNING`, `ERROR`, and `ASSERT`.
-- `allowNativeChanges`: A boolean value to allow the plugin to make changes to the native code. The default value is `true`. Since it is expected that this plugin is used in new Expo projects. You can set this to `false` if you do not want the Plugin to make changes to the native code.
-- `allowPodFileChanges`: A boolean value to allow the plugin to make changes to the Podfile. The default value is `true`. Since it is expected that this plugin is used in new Expo projects. You can set this to `false` if you do not want the Plugin to make changes to the Podfile.
-- `allowBuildSettingsChanges`: A boolean value to allow the plugin to make changes to the build settings. The default value is `true`. Since it is expected that this plugin is used in new Expo projects. You can set this to `false` if you do not want the Plugin to make changes to the build settings.
 
 ```json
 {
