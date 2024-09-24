@@ -19,7 +19,7 @@ PODS:
     - AEPCore (< 6.0.0, >= 5.2.0)
   - AEPLifecycle (5.2.0):
     - AEPCore (< 6.0.0, >= 5.2.0)
-  - AEPMessaging (5.2.0):
+  - AEPMessaging (5.3.0):
     - AEPCore (< 6.0.0, >= 5.2.0)
     - AEPEdge (< 6.0.0, >= 5.0.2)
     - AEPEdgeIdentity (< 6.0.0, >= 5.0.0)
@@ -42,7 +42,7 @@ PODS:
     - ExpoModulesCore
   - Expo (51.0.24):
     - ExpoModulesCore
-  - ExpoAdapterAEP (0.1.1-alpha.2):
+  - ExpoAdapterAEP (0.1.1-alpha.13):
     - AEPCore (< 6.0.0, >= 5.0.0)
     - AEPEdge (< 6.0.0, >= 5.0.0)
     - AEPEdgeIdentity (< 6.0.0, >= 5.0.0)
@@ -1553,7 +1553,7 @@ SPEC CHECKSUMS:
   AEPEdgeIdentity: 3161ff33434586962946912d6b8e9e8fca1c4d23
   AEPIdentity: 3c597ef3d734d726f6a48ae10cdecb36fbeb28ca
   AEPLifecycle: 0e2ddb26751320b88ea7471e63751f38c4ccdc10
-  AEPMessaging: cee05697723e26bfb42aa7b05c9cd726ff7c95bb
+  AEPMessaging: dbefc300309d0d779d5caff07e305be00b4db749
   AEPOptimize: 0ee77adf3e30e6961e06dda85ad2ce132da9eb4c
   AEPPlaces: 9eec5f88306033ce8190ec30727cbdd4008cc018
   AEPRulesEngine: fe5800653a4bee07b1e41e61b4d5551f0dba557b
@@ -1564,7 +1564,7 @@ SPEC CHECKSUMS:
   DoubleConversion: 76ab83afb40bddeeee456813d9c04f67f78771b5
   EXConstants: 409690fbfd5afea964e5e9d6c4eb2c2b59222c59
   Expo: 798848eae1daf13363d69790986146b08d0cf92f
-  ExpoAdapterAEP: fa43827c819bccacfda643aa3b1ec164358f6388
+  ExpoAdapterAEP: d7d04892d383d1faf86f1c79a9ce8f99194bb9a9
   ExpoAsset: 323700f291684f110fb55f0d4022a3362ea9f875
   ExpoFileSystem: 80bfe850b1f9922c16905822ecbf97acd711dc51
   ExpoFont: e7f2275c10ca8573c991e007329ad6bf98086485

@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { MobileCore } from '@adobe/react-native-aepcore';
 import { useEffect, useState } from 'react';
-// import * as AepsdkExpoPlugin from 'aepsdk-expo-plugin';
 
 export default function App() {
   const [version, setVersion] = useState('');

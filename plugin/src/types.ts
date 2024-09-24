@@ -4,4 +4,5 @@ export type SdkConfigurationProps = {
   allowNativeChanges?: boolean;
   allowPodFileChanges?: boolean;
   allowBuildSettingsChanges?: boolean;
+  allowLifeCycleChanges?: boolean;
 };

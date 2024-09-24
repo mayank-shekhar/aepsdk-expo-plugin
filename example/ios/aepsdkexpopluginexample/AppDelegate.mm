@@ -1,7 +1,6 @@
 #import "AppDelegate.h"
 #import "AdobeBridge.h"
 
-
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
 
@@ -62,6 +61,16 @@
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
   return [super application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+}
+
+
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+  [AEPMobileCore lifecyclePause];
+}
+
+
+- (void)applicationWillEnterForeground:(UIApplication *)application {
+  [AEPMobileCore lifecycleStart:nil];
 }
 
 @end

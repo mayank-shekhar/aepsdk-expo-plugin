@@ -1,4 +1,4 @@
-import { ConfigPlugin, withInfoPlist, withPodfile, withXcodeProject, withAppDelegate } from "@expo/config-plugins";
+import { ConfigPlugin, withPodfile, withXcodeProject, withAppDelegate } from "@expo/config-plugins";
 import { SdkConfigurationProps } from "./types";
 
 const fs = require("fs");
@@ -106,7 +106,6 @@ export const withCoreBridgeFiles: ConfigPlugin<SdkConfigurationProps> = (config,
   return withXcodeProject(config, (config) => {
     const { modResults } = config;
     const projectName = path.basename(config.modRequest.projectName);
-    console.log("projectName: ", projectName);
 
     let logLevelCode = `  `;
     if (logLevel == "DEBUG") {
@@ -167,13 +166,30 @@ export const withCoreBridgeFiles: ConfigPlugin<SdkConfigurationProps> = (config,
     // Add AEP SDK import code in app delegate file
     const importCode = importsToAdd.join("\n");
 
+    // Add the imports to AppDelegate.h file
+    const appDelegateHeaderPath = path.join(projectPath, 'AppDelegate.h');
+    let appDelegateHeader = fs.readFileSync(appDelegateHeaderPath, 'utf8');
+
+    // remove all the code between @import AEPCore and @import AEPServices
+    const importRegex = /@import AEPCore;(.*\n)*@import AEPServices;/;
+
+    // check if file contains @import AEPCore and @import AEPServices
+    if (!appDelegateHeader.includes('@import AEPCore;') || !appDelegateHeader.includes('@import AEPServices;')) {
+      appDelegateHeader = appDelegateHeader.replace(
+        /#import <RCTAppDelegate.h>/,
+        `#import <RCTAppDelegate.h>\n${importCode}`
+      );
+    } else {
+      appDelegateHeader = appDelegateHeader.replace(importRegex, importCode);
+    }
+    fs.writeFileSync(appDelegateHeaderPath, appDelegateHeader);
+
     // Create the AdobeBridge.m file
     const bridgeImplementationPath = path.join(projectPath, 'AdobeBridge.m');
       fs.writeFileSync(bridgeImplementationPath, `
 #import "AdobeBridge.h"
+#import "AppDelegate.h"
 #import <UIKit/UIKit.h>
-
-${importCode}
 
 @implementation AdobeBridge
 + (void)configure: (UIApplicationState)appState
@@ -190,64 +206,62 @@ ${importCode}
 @end`);
 
      // Update the xcode project file to include the AdobeBridge files
-    const pbxproj = modResults;
-    const headerFileRef = pbxproj.generateUuid(),
-      headerFileUuid = pbxproj.generateUuid(),
-      implementationFileRef = pbxproj.generateUuid(),
-      implementationFileUuid = pbxproj.generateUuid();
-    const bridgeHeaderFile = {
-      fileRef: headerFileRef,
-      uuid: headerFileUuid,
-      group: 'Sources',
-      isBuildFile: false,
-      basename: 'AdobeBridge.h',
-      path: `${projectName}/AdobeBridge.h`,
-      sourceTree: '"<group>"',
-      fileEncoding: '4',
-      lastKnownFileType: 'sourcecode.c.h',
-    };
-    const bridgeImplementationFile = {
-      fileRef: implementationFileRef,
-      uuid: implementationFileUuid,
-      group: 'Sources',
-      isBuildFile: true,
-      basename: 'AdobeBridge.m',
-      path: `${projectName}/AdobeBridge.m`,
-      sourceTree: '"<group>"',
-      fileEncoding: '4',
-      lastKnownFileType: 'sourcecode.c.objc',
-    };
+    // const pbxproj = modResults;
+    // const headerFileRef = pbxproj.generateUuid(),
+    //   headerFileUuid = pbxproj.generateUuid(),
+    //   implementationFileRef = pbxproj.generateUuid(),
+    //   implementationFileUuid = pbxproj.generateUuid();
+    // const bridgeHeaderFile = {
+    //   fileRef: headerFileRef,
+    //   uuid: headerFileUuid,
+    //   group: 'Sources',
+    //   isBuildFile: false,
+    //   basename: 'AdobeBridge.h',
+    //   path: `${projectName}/AdobeBridge.h`,
+    //   sourceTree: '"<group>"',
+    //   fileEncoding: '4',
+    //   lastKnownFileType: 'sourcecode.c.h',
+    // };
+    // const bridgeImplementationFile = {
+    //   fileRef: implementationFileRef,
+    //   uuid: implementationFileUuid,
+    //   group: 'Sources',
+    //   isBuildFile: true,
+    //   basename: 'AdobeBridge.m',
+    //   path: `${projectName}/AdobeBridge.m`,
+    //   sourceTree: '"<group>"',
+    //   fileEncoding: '4',
+    //   lastKnownFileType: 'sourcecode.c.objc',
+    // };
 
-    pbxproj.removeFromPbxBuildFileSection(bridgeImplementationFile);
+    // pbxproj.removeFromPbxBuildFileSection(bridgeImplementationFile);
 
-    pbxproj.addToPbxBuildFileSection(bridgeImplementationFile);
-
-
-    pbxproj.removeFromPbxFileReferenceSection(bridgeHeaderFile);
-    pbxproj.removeFromPbxFileReferenceSection(bridgeImplementationFile);
-    pbxproj.addToPbxFileReferenceSection(bridgeHeaderFile);
-    pbxproj.addToPbxFileReferenceSection(bridgeImplementationFile);
+    // pbxproj.addToPbxBuildFileSection(bridgeImplementationFile);
 
 
-    // get first target
+    // pbxproj.removeFromPbxFileReferenceSection(bridgeHeaderFile);
+    // pbxproj.removeFromPbxFileReferenceSection(bridgeImplementationFile);
+    // pbxproj.addToPbxFileReferenceSection(bridgeHeaderFile);
+    // pbxproj.addToPbxFileReferenceSection(bridgeImplementationFile);
 
-    const pbxGroupKey = pbxproj.findPBXGroupKey({ name: projectName });
 
-    // first remove if already present in PXXGroup, and then add file to prjectName PBXGroup
-    pbxproj.removeFromPbxGroup(bridgeHeaderFile, pbxGroupKey);
-    pbxproj.removeFromPbxGroup(bridgeImplementationFile, pbxGroupKey);
-    pbxproj.addToPbxGroup(bridgeHeaderFile, pbxGroupKey);
-    pbxproj.addToPbxGroup(bridgeImplementationFile, pbxGroupKey);
+    // // get first target
 
-    // Add AdobeBridge.m to build phase section
-    pbxproj.addToPbxSourcesBuildPhase({
-        ...bridgeImplementationFile,
-        target: pbxproj.getFirstTarget().uuid,
-    });
+    // const pbxGroupKey = pbxproj.findPBXGroupKey({ name: projectName });
+
+    // // first remove if already present in PXXGroup, and then add file to prjectName PBXGroup
+    // pbxproj.removeFromPbxGroup(bridgeHeaderFile, pbxGroupKey);
+    // pbxproj.removeFromPbxGroup(bridgeImplementationFile, pbxGroupKey);
+    // pbxproj.addToPbxGroup(bridgeHeaderFile, pbxGroupKey);
+    // pbxproj.addToPbxGroup(bridgeImplementationFile, pbxGroupKey);
+
+    // // Add AdobeBridge.m to build phase section
+    // pbxproj.addToPbxSourcesBuildPhase({
+    //     ...bridgeImplementationFile,
+    //     target: pbxproj.getFirstTarget().uuid,
+    // });
 
     // Update AppDelegate.h to include #import <ExpoModulesCore/EXAppDelegateWrapper.h> if it doesn't already
-    const appDelegateHeaderPath = path.join(projectPath, 'AppDelegate.h');
-    let appDelegateHeader = fs.readFileSync(appDelegateHeaderPath, 'utf8');
 
     // place #import <Expo/Expo.h> with #import <ExpoModulesCore/EXAppDelegateWrapper.h>
     if (appDelegateHeader.includes('#import <Expo/Expo.h>') && !appDelegateHeader.includes('#import <ExpoModulesCore/EXAppDelegateWrapper.h>')) {
@@ -264,7 +278,8 @@ ${importCode}
 
 export const withUpdatedAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
   config,
-  props) => {
+  props
+) => {
   return withAppDelegate(config, (config) => {
     let appDelegateContent = config.modResults.contents;
 
@@ -298,152 +313,47 @@ export const withUpdatedAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
   });
 };
 
-// export const withCoreAppDelegate: ConfigPlugin<SdkConfigurationProps> = (
-//   config,
-//   props,
-// ) => {
-//   return withAppDelegate(config, (config) => {
-//     const { logLevel} = props;
-//     let appDelegate = config.modResults.contents;
+export const withLifeCycleListener: ConfigPlugin<SdkConfigurationProps> = (
+  config,
+  props
+) => {
+  return withAppDelegate(config, (config) => {
+    // in appDelegate.mm file, check if applicationDidEnterBackground and applicationWillEnterForeground methods are present
+    // if not, add the methods
+    let appDelegateContent = config.modResults.contents;
 
+    const applicationDidEnterBackgroundCode = `
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+  [AEPMobileCore lifecyclePause];
+}
+`;
 
-//     // set the log level based on props.logLevel
-//     let logLevelCode = `  `;
-//     if (logLevel == "DEBUG") {
-//       logLevelCode = `[AEPMobileCore setLogLevel:AEPLogLevelDebug];`
-//     } else if (logLevel == "ERROR") {
-//       logLevelCode = `[AEPMobileCore setLogLevel:AEPLogLevelError];`
-//     } else if (logLevel == "WARNING") {
-//       logLevelCode = `[AEPMobileCore setLogLevel:AEPLogLevelWarning];`
-//     } else if (logLevel == "VERBOSE" || logLevel == "INFO") {
-//       logLevelCode = `[AEPMobileCore setLogLevel:AEPLogLevelTrace];`
-//     } else {
-//       logLevelCode = `[AEPMobileCore setLogLevel:AEPLogLevelError];`
-//     }
+    const applicationWillEnterForegroundCode = `
+- (void)applicationWillEnterForeground:(UIApplication *)application {
+  [AEPMobileCore lifecycleStart:nil];
+}
+`;
 
-//     // check if the log level code is already added then remove it and add updated code
-//     if (appDelegate.includes("[AEPMobileCore setLogLevel:")) {
-//       appDelegate = appDelegate.replace(
-//         /\[AEPMobileCore setLogLevel:[\s\S]*?\];/,
-//         logLevelCode
-//       );
-//     } else {
-//       // Add the log level code to the didFinishLaunchingWithOptions function
-//       appDelegate = appDelegate.replace(
-//         /self.initialProps = @{};/,
-//         `self.initialProps = @{};\n${logLevelCode}\n`
-//       );
-//     }
+    // Add the above code before end of the file, before the @end string
+    if (!appDelegateContent.includes(applicationDidEnterBackgroundCode)) {
+      appDelegateContent = appDelegateContent.replace(
+        /@end/,
+        `${applicationDidEnterBackgroundCode}\n@end`
+      );
+    }
 
-//     // Read the application dependencies from package.json and add the imports in AppDelegate.m
-//     const packageJsonPath = path.resolve(process.cwd(), "package.json");
-//     const packageJson = JSON.parse(fs
-//       .readFileSync(packageJsonPath, "utf8")
-//     );
+    if (!appDelegateContent.includes(applicationWillEnterForegroundCode)) {
+      appDelegateContent = appDelegateContent.replace(
+        /@end/,
+        `${applicationWillEnterForegroundCode}\n@end`
+      );
+    }
 
-//     const dependencies = packageJson.dependencies;
+    config.modResults.contents = appDelegateContent;
 
-//     let extensions = `AEPMobileIdentity.class, AEPMobileLifecycle.class, AEPMobileSignal.class`;
-
-//     const importsToAdd = ['@import AEPCore;', '@import AEPLifecycle;', '@import AEPSignal;', '@import AEPIdentity;'];
-//     for (const [name] of Object.entries(dependencies)) {
-//       if (name.startsWith("@adobe/react-native-aepcore")) {
-//         continue;
-//       } else {
-//         // check if name is in the iosSdkMap
-//         if (iosSdkMap[ name ]) {
-//           importsToAdd.push(`@import ${iosSdkMap[ name ]};`);
-//           extensions = extensions + `, ${iosSdkClassMap[ name ]}.class`;
-//         }
-//       }
-//     }
-
-//     // check if importToAdd is empty, means RN SDKs are not installed in the project, raise an error
-//     if (importsToAdd.length === 0) {
-//       throw new Error("No SDKs found in package.json. Please add the SDKs to the project.")
-//     } else {
-//       if (!importsToAdd.includes('@import AEPServices;')) {
-//         importsToAdd.push('@import AEPServices;')
-//       }
-//     }
-
-//     // Add AEP SDK import code in app delegate file
-//     const importCode = importsToAdd.join("\n");
-
-//     // check if import code is already added then remove it and add updated code
-//     if (appDelegate.includes("@import AEPCore;")) {
-//       appDelegate = appDelegate.replace(
-//         /@import AEPCore[\s\S]*@import AEPServices;/,
-//         importCode
-//       );
-//     } else {
-//       // Add the import statements to the app delegate file at the top
-//       appDelegate = appDelegate.replace(
-//         /#import "AppDelegate.h"/,
-//         `#import "AppDelegate.h"\n// Added by Adobe Expo SDK Plugin\n${importCode}`
-//       );
-//     }
-
-//     // Add SDK initialization code in the didFinishLaunchingWithOptions function in Objective-C
-//     const sdkInit = `
-
-//   [AEPMobileCore configureWithAppId:@"${props.environmentFileId}"];
-//   const UIApplicationState appState = application.applicationState;
-//   [AEPMobileCore registerExtensions:@[${extensions}] completion:^{
-//     // Use the extensions in your app
-//     NSLog(@"Extensions registered successfully");
-//     [AEPMobileCore lifecycleStart:@{@"contextDataKey": @"contextDataVal"}];
-//     if (appState != UIApplicationStateBackground) {
-//       [AEPMobileCore lifecycleStart:nil];
-//     }
-//   }];
-//   `
-
-
-
-
-//   //   // Add the SDK initialization code in the didFinishLaunchingWithOptions function
-//   //   const sdkInit = `
-//   // MobileCore.registerExtensions([${extensions}]) {
-//   //   // Added by Adobe Expo Config Module
-//   //   // Use the extensions in your app
-//   //   MobileCore.registerWith(appId: "${props.environmentFileId}")
-//   //   print("Extensions registered successfully")
-
-//   //   if application.applicationState != .background {
-//   //     // Only start lifecycle if the application is not in the background
-//   //     MobileCore.lifecycleStart(additionalContextData: ["contextDataKey": "contextDataVal"])
-//   //   }
-//   // }
-//   //   `;
-
-
-
-
-//     if (appDelegate.includes("AEPMobileCore registerExtensions:@[")) {
-
-//       // replace the extensions with new extensions string
-//       appDelegate = appDelegate.replace(
-//         /AEPMobileCore registerExtensions:@\[[\s\S]*?\] completion/,
-//         `AEPMobileCore registerExtensions:@[${extensions}] completion`
-//       );
-
-//     } else {
-//       // add the code to the didFinishLaunchingWithOptions function
-//       appDelegate = appDelegate.replace(
-//         /self.initialProps = @{};/,
-//         `self.initialProps = @{};\n${sdkInit}`
-//       );
-//     }
-//     config.modResults.contents = appDelegate;
-
-//     return config
-
-//   });
-
-
-
-// }
+    return config;
+  });
+};
 
 export const withCoreiOSSdk: ConfigPlugin<SdkConfigurationProps> = (
   config,
@@ -458,6 +368,10 @@ export const withCoreiOSSdk: ConfigPlugin<SdkConfigurationProps> = (
   if (props.allowNativeChanges) {
     config = withCoreBridgeFiles(config, props);
     config = withUpdatedAppDelegate(config, props);
+  }
+
+  if (props.allowLifeCycleChanges) {
+    config = withLifeCycleListener(config, props);
   }
 
   return config;

@@ -1,4 +1,22 @@
-package com.adobe.aepsdkexpo.example
+package com.adobe.aepsdkexpo.example;
+
+// Adobe SDKs imports start
+import com.adobe.marketing.mobile.Lifecycle
+import com.adobe.marketing.mobile.Signal
+import android.util.Log
+import com.adobe.marketing.mobile.LoggingMode
+import com.adobe.marketing.mobile.Assurance
+import com.adobe.marketing.mobile.Edge
+import com.adobe.marketing.mobile.edge.bridge.EdgeBridge
+import com.adobe.marketing.mobile.edge.consent.Consent
+import com.adobe.marketing.mobile.edge.identity.Identity
+import com.adobe.marketing.mobile.Messaging
+import com.adobe.marketing.mobile.optimize.Optimize
+import com.adobe.marketing.mobile.Places
+import com.adobe.marketing.mobile.UserProfile
+import com.adobe.marketing.mobile.MobileCore
+// Adobe SDKs imports end
+
 
 import android.app.Application
 import android.content.res.Configuration
@@ -40,6 +58,18 @@ class MainApplication : Application(), ReactApplication {
 
   override fun onCreate() {
     super.onCreate()
+         
+      MobileCore.setApplication(this);
+      MobileCore.configureWithAppID("example");
+      MobileCore.setLogLevel(LoggingMode.DEBUG);
+    
+        
+      val extensions = listOf(Lifecycle.EXTENSION, Signal.EXTENSION, Assurance.EXTENSION, Edge.EXTENSION, EdgeBridge.EXTENSION, Consent.EXTENSION, Identity.EXTENSION, Messaging.EXTENSION, Optimize.EXTENSION, Places.EXTENSION, UserProfile.EXTENSION)
+      MobileCore.registerExtensions(extensions) {
+        // Use the extensions in your app
+        Log.d("CoreExtensions", "Extensions registered successfully");
+      }
+    
     SoLoader.init(this, false)
     if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
       // If you opted-in for the New Architecture, we load the native entry point for this app.
