@@ -13,6 +13,9 @@ const withSdkConfiguration: ConfigPlugin<SdkConfigurationProps> = (
   const props = _props || {
     environmentFileId: "default-file-id",
     logLevel: 1,
+    allowNativeChanges: true,
+    allowPodFileChanges: true,
+    allowBuildSettingsChanges: true,
   };
   config = withCoreiOSSdk(config, props);
   config = withCoreAndroidSdk(config, props);

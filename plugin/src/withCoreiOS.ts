@@ -449,12 +449,16 @@ export const withCoreiOSSdk: ConfigPlugin<SdkConfigurationProps> = (
   config,
   props,
 ) => {
-  config = withCorePodfile(config, props);
-  config = withCoreXcodeProject(config, props);
-  // config = withCoreInfoPlist(config, props);
-  // config = withCoreAppDelegate(config, props);
-  config = withCoreBridgeFiles(config, props);
-  config = withUpdatedAppDelegate(config, props);
+  if (props.allowPodFileChanges) {
+    config = withCorePodfile(config, props);
+  }
+  if (props.allowBuildSettingsChanges) {
+    config = withCoreXcodeProject(config, props);
+  }
+  if (props.allowNativeChanges) {
+    config = withCoreBridgeFiles(config, props);
+    config = withUpdatedAppDelegate(config, props);
+  }
 
   return config;
 };

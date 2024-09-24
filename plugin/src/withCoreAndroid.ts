@@ -148,7 +148,9 @@ const withCoreMainApplication: ConfigPlugin<SdkConfigurationProps> = (
 };
 
 export const withCoreAndroidSdk: ConfigPlugin<SdkConfigurationProps> = (config, props) => {
-  config = withCoreMainApplication(config, props);
+  if (props.allowNativeChanges) {
+    config = withCoreMainApplication(config, props);
+  }
 
   return config;
 };
