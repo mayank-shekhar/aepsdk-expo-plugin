@@ -56,40 +56,20 @@ class MainApplication : Application(), ReactApplication {
   override val reactHost: ReactHost
     get() = ReactNativeHostWrapper.createReactHost(applicationContext, reactNativeHost)
 
-  override fun onResume() {
-        super.onResume();
-        
-    MobileCore.setApplication(getApplication());
-    MobileCore.lifecycleStart(null);
-    
-    }
-
-  override fun onPause() {
-        super.onPause();
-        
-    MobileCore.lifecyclePause();
-    
-    }
-
   override fun onCreate() {
     super.onCreate()
-         
-      MobileCore.setApplication(this);
-      MobileCore.configureWithAppID("example");
-      MobileCore.setLogLevel(LoggingMode.DEBUG);
-    
-        
-      val extensions = listOf(Lifecycle.EXTENSION, Signal.EXTENSION, Assurance.EXTENSION, Edge.EXTENSION, EdgeBridge.EXTENSION, Consent.EXTENSION, Identity.EXTENSION, Messaging.EXTENSION, Optimize.EXTENSION, Places.EXTENSION, UserProfile.EXTENSION)
-      MobileCore.registerExtensions(extensions,
-      AdobeCallback { o: Any? ->
-        MobileCore.lifecycleStart(
-          null
-        )
-      }) {
-        // Use the extensions in your app
-        Log.d("CoreExtensions", "Extensions registered successfully");
-      }
-    
+
+    MobileCore.setApplication(this);
+    MobileCore.configureWithAppID("example");
+    MobileCore.setLogLevel(LoggingMode.DEBUG);
+
+
+    val extensions = listOf(Lifecycle.EXTENSION, Signal.EXTENSION, Assurance.EXTENSION, Edge.EXTENSION, EdgeBridge.EXTENSION, Consent.EXTENSION, Identity.EXTENSION, Messaging.EXTENSION, Optimize.EXTENSION, Places.EXTENSION, UserProfile.EXTENSION)
+    MobileCore.registerExtensions(extensions) {
+      // Use the extensions in your app
+      Log.d("CoreExtensions", "Extensions registered successfully");
+    }
+
     SoLoader.init(this, false)
     if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
       // If you opted-in for the New Architecture, we load the native entry point for this app.
