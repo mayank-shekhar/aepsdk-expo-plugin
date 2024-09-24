@@ -5,7 +5,9 @@ import { useEffect, useState } from 'react';
 export default function App() {
   const [version, setVersion] = useState('');
   useEffect(() => {
-    MobileCore.li
+    Lifecycle.extensionVersion().then(version =>
+      console.log('AdobeExperienceSDK: Lifecycle version: ' + version),
+    );
 
     MobileCore.extensionVersion().then((version) => {
       console.log('Extension version: ', version);
