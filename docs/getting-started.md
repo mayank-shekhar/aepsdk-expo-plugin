@@ -49,7 +49,7 @@ The plugin has the following configuration options:
 
 #### Installation
 
-In you expo project, install the Adobe Experience Platform Expo plugin.
+In your expo project, install the Adobe Experience Platform Expo plugin.
 
 To install the plugin, run the following command:
 
