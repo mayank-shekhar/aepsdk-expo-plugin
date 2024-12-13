@@ -147,10 +147,55 @@ const withCoreMainApplication: ConfigPlugin<SdkConfigurationProps> = (
   });
 };
 
+// Add lifecycle methods onResume and onPause to the mainApplication file
+export const withAndroidLifeCycle: ConfigPlugin = (config, props) => {
+  return withMainApplication(config, (config) => {
+    let mainApplication = config.modResults.contents;
+
+    // check if public void onResume() and public void onPause() methods exist
+    const onResumeRegex = /public void onResume\(\) {[\s\S]*?}/;
+    const onPauseRegex = /public void onPause\(\) {[\s\S]*?}/;
+
+    const onResumeCodeToAdd = `
+    MobileCore.setApplication(getApplication());
+    MobileCore.lifecycleStart(null);
+    `;
+
+    const onPauseCodeToAdd = `
+    MobileCore.lifecyclePause();
+    `;
+
+    // check if the onResume method exists
+    if (!onResumeRegex.test(mainApplication)) {
+      // if it doesn't exist, add the onResume code before "override fun onConfigurationChanged(newConfig: Configuration) {"
+      mainApplication = mainApplication.replace(
+        /override fun onConfigurationChanged\(newConfig: Configuration\) {/,
+        `override fun onResume() {\n        super.onResume();\n        ${onResumeCodeToAdd}\n    }\n\n  override fun onConfigurationChanged(newConfig: Configuration) {`
+      );
+    }
+
+    // check if the onPause method exists
+    if (!onPauseRegex.test(mainApplication)) {
+      // if it doesn't exist, add the onPause code before "override fun onCreate() {"
+      mainApplication = mainApplication.replace(
+        /override fun onConfigurationChanged\(newConfig: Configuration\) {/,
+        `override fun onPause() {\n        super.onPause();\n        ${onPauseCodeToAdd}\n    }\n\n  override fun onCreate() {`
+      );
+    }
+
+    config.modResults.contents = mainApplication;
+
+    return config;
+  });
+};
+
 export const withCoreAndroidSdk: ConfigPlugin<SdkConfigurationProps> = (config, props) => {
   if (props.allowNativeChanges) {
     config = withCoreMainApplication(config, props);
   }
+  // if (props.allowLifeCycleChanges) {
+  //   config = withAndroidLifeCycle(config);
+  // }
 
   return config;
 };

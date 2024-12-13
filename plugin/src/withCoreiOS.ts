@@ -206,60 +206,60 @@ export const withCoreBridgeFiles: ConfigPlugin<SdkConfigurationProps> = (config,
 @end`);
 
      // Update the xcode project file to include the AdobeBridge files
-    // const pbxproj = modResults;
-    // const headerFileRef = pbxproj.generateUuid(),
-    //   headerFileUuid = pbxproj.generateUuid(),
-    //   implementationFileRef = pbxproj.generateUuid(),
-    //   implementationFileUuid = pbxproj.generateUuid();
-    // const bridgeHeaderFile = {
-    //   fileRef: headerFileRef,
-    //   uuid: headerFileUuid,
-    //   group: 'Sources',
-    //   isBuildFile: false,
-    //   basename: 'AdobeBridge.h',
-    //   path: `${projectName}/AdobeBridge.h`,
-    //   sourceTree: '"<group>"',
-    //   fileEncoding: '4',
-    //   lastKnownFileType: 'sourcecode.c.h',
-    // };
-    // const bridgeImplementationFile = {
-    //   fileRef: implementationFileRef,
-    //   uuid: implementationFileUuid,
-    //   group: 'Sources',
-    //   isBuildFile: true,
-    //   basename: 'AdobeBridge.m',
-    //   path: `${projectName}/AdobeBridge.m`,
-    //   sourceTree: '"<group>"',
-    //   fileEncoding: '4',
-    //   lastKnownFileType: 'sourcecode.c.objc',
-    // };
+    const pbxproj = modResults;
+    const headerFileRef = pbxproj.generateUuid(),
+      headerFileUuid = pbxproj.generateUuid(),
+      implementationFileRef = pbxproj.generateUuid(),
+      implementationFileUuid = pbxproj.generateUuid();
+    const bridgeHeaderFile = {
+      fileRef: headerFileRef,
+      uuid: headerFileUuid,
+      group: 'Sources',
+      isBuildFile: false,
+      basename: 'AdobeBridge.h',
+      path: `${projectName}/AdobeBridge.h`,
+      sourceTree: '"<group>"',
+      fileEncoding: '4',
+      lastKnownFileType: 'sourcecode.c.h',
+    };
+    const bridgeImplementationFile = {
+      fileRef: implementationFileRef,
+      uuid: implementationFileUuid,
+      group: 'Sources',
+      isBuildFile: true,
+      basename: 'AdobeBridge.m',
+      path: `${projectName}/AdobeBridge.m`,
+      sourceTree: '"<group>"',
+      fileEncoding: '4',
+      lastKnownFileType: 'sourcecode.c.objc',
+    };
 
-    // pbxproj.removeFromPbxBuildFileSection(bridgeImplementationFile);
+    pbxproj.removeFromPbxBuildFileSection(bridgeImplementationFile);
 
-    // pbxproj.addToPbxBuildFileSection(bridgeImplementationFile);
-
-
-    // pbxproj.removeFromPbxFileReferenceSection(bridgeHeaderFile);
-    // pbxproj.removeFromPbxFileReferenceSection(bridgeImplementationFile);
-    // pbxproj.addToPbxFileReferenceSection(bridgeHeaderFile);
-    // pbxproj.addToPbxFileReferenceSection(bridgeImplementationFile);
+    pbxproj.addToPbxBuildFileSection(bridgeImplementationFile);
 
 
-    // // get first target
+    pbxproj.removeFromPbxFileReferenceSection(bridgeHeaderFile);
+    pbxproj.removeFromPbxFileReferenceSection(bridgeImplementationFile);
+    pbxproj.addToPbxFileReferenceSection(bridgeHeaderFile);
+    pbxproj.addToPbxFileReferenceSection(bridgeImplementationFile);
 
-    // const pbxGroupKey = pbxproj.findPBXGroupKey({ name: projectName });
 
-    // // first remove if already present in PXXGroup, and then add file to prjectName PBXGroup
-    // pbxproj.removeFromPbxGroup(bridgeHeaderFile, pbxGroupKey);
-    // pbxproj.removeFromPbxGroup(bridgeImplementationFile, pbxGroupKey);
-    // pbxproj.addToPbxGroup(bridgeHeaderFile, pbxGroupKey);
-    // pbxproj.addToPbxGroup(bridgeImplementationFile, pbxGroupKey);
+    // get first target
 
-    // // Add AdobeBridge.m to build phase section
-    // pbxproj.addToPbxSourcesBuildPhase({
-    //     ...bridgeImplementationFile,
-    //     target: pbxproj.getFirstTarget().uuid,
-    // });
+    const pbxGroupKey = pbxproj.findPBXGroupKey({ name: projectName });
+
+    // first remove if already present in PXXGroup, and then add file to prjectName PBXGroup
+    pbxproj.removeFromPbxGroup(bridgeHeaderFile, pbxGroupKey);
+    pbxproj.removeFromPbxGroup(bridgeImplementationFile, pbxGroupKey);
+    pbxproj.addToPbxGroup(bridgeHeaderFile, pbxGroupKey);
+    pbxproj.addToPbxGroup(bridgeImplementationFile, pbxGroupKey);
+
+    // Add AdobeBridge.m to build phase section
+    pbxproj.addToPbxSourcesBuildPhase({
+        ...bridgeImplementationFile,
+        target: pbxproj.getFirstTarget().uuid,
+    });
 
     // Update AppDelegate.h to include #import <ExpoModulesCore/EXAppDelegateWrapper.h> if it doesn't already
 

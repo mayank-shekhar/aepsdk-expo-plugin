@@ -58,18 +58,18 @@ class MainApplication : Application(), ReactApplication {
 
   override fun onCreate() {
     super.onCreate()
-         
-      MobileCore.setApplication(this);
-      MobileCore.configureWithAppID("example");
-      MobileCore.setLogLevel(LoggingMode.DEBUG);
-    
-        
-      val extensions = listOf(Lifecycle.EXTENSION, Signal.EXTENSION, Assurance.EXTENSION, Edge.EXTENSION, EdgeBridge.EXTENSION, Consent.EXTENSION, Identity.EXTENSION, Messaging.EXTENSION, Optimize.EXTENSION, Places.EXTENSION, UserProfile.EXTENSION)
-      MobileCore.registerExtensions(extensions) {
-        // Use the extensions in your app
-        Log.d("CoreExtensions", "Extensions registered successfully");
-      }
-    
+
+    MobileCore.setApplication(this);
+    MobileCore.configureWithAppID("example");
+    MobileCore.setLogLevel(LoggingMode.DEBUG);
+
+
+    val extensions = listOf(Lifecycle.EXTENSION, Signal.EXTENSION, Assurance.EXTENSION, Edge.EXTENSION, EdgeBridge.EXTENSION, Consent.EXTENSION, Identity.EXTENSION, Messaging.EXTENSION, Optimize.EXTENSION, Places.EXTENSION, UserProfile.EXTENSION)
+    MobileCore.registerExtensions(extensions) {
+      // Use the extensions in your app
+      Log.d("CoreExtensions", "Extensions registered successfully");
+    }
+
     SoLoader.init(this, false)
     if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
       // If you opted-in for the New Architecture, we load the native entry point for this app.
